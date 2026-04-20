@@ -230,12 +230,16 @@
               <h2 class="section-title mb-3 text-2xl font-semibold text-slate-900">배우 콜 시간</h2>
               <p class="text-slate-600">배우마다 콜 시간이 다를 수 있습니다. 배우를 선택하고 날짜별로 개별 입력하세요.</p>
             </div>
-            <button id="addActorCallTimeBtn" class="btn-primary">+ 배우 콜 추가</button>
+            <div class="flex gap-2 items-center">
+              <button id="deleteSelectedActorCallBtn" class="btn-small" style="background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;border-radius:8px;padding:6px 14px;cursor:pointer;display:none;">선택 삭제</button>
+              <button id="addActorCallTimeBtn" class="btn-primary">+ 배우 콜 추가</button>
+            </div>
           </div>
           <div class="overflow-x-auto">
             <table id="actorCallTimeTable" class="min-w-full text-sm">
               <thead class="bg-slate-50 text-slate-600">
                 <tr>
+                  <th style="width:36px;text-align:center;"><input type="checkbox" id="actorCallSelectAll" title="전체 선택" style="cursor:pointer;width:15px;height:15px;"></th>
                   <th>날짜</th>
                   <th>배우 선택</th>
                   <th>캐릭터명</th>
@@ -1078,15 +1082,21 @@ S#7 버스정류장 앞 / 오후
         return staff.filter(member => member.type === '배우');
       }
 
+      function updateActorCallDeleteBtn() {
+        const checked = document.querySelectorAll('.actor-call-check:checked').length;
+        const btn = document.getElementById('deleteSelectedActorCallBtn');
+        if (btn) btn.style.display = checked > 0 ? 'inline-block' : 'none';
+      }
+
       function renderActorCallTimeTable() {
         const actorCallTimeBody = document.getElementById('actorCallTimeBody');
         const actors = getActors();
-        console.log('배우 목록:', actors); // 디버깅용
         actorCallTimeBody.innerHTML = '';
         actorCallTimes.forEach((callTime, idx) => {
           const row = document.createElement('tr');
           row.className = 'border-b border-slate-200 hover:bg-slate-50';
           row.innerHTML = `
+            <td style="text-align:center;"><input type="checkbox" class="actor-call-check" data-idx="${idx}" style="cursor:pointer;width:15px;height:15px;"></td>
             <td>${makeDateInput('actor-call-date', idx, callTime.date)}</td>
             <td>
               <select class="actor-call-actor" data-idx="${idx}" style="min-width:120px;">
@@ -1103,13 +1113,27 @@ S#7 버스정류장 앞 / 오후
           actorCallTimeBody.appendChild(row);
         });
 
+        // 전체 선택 체크박스 초기화
+        const selectAllCb = document.getElementById('actorCallSelectAll');
+        if (selectAllCb) selectAllCb.checked = false;
+        updateActorCallDeleteBtn();
+
         // 캘린더 피커 초기화 (select로 렌더된 경우 flatpickr 생략)
         document.querySelectorAll('.actor-call-date').forEach(el => {
           if (el.tagName === 'INPUT') flatpickr(el, { mode: 'single', dateFormat: 'Y-m-d', locale: 'ko' });
         });
 
-        // 이벤트 리스너 추가 - actors 배열을 클로저로 캡처
+        // 개별 체크박스 변경
         actorCallTimeBody.addEventListener('change', (e) => {
+          if (e.target.classList.contains('actor-call-check')) {
+            const allChecks = document.querySelectorAll('.actor-call-check');
+            const allChecked = [...allChecks].every(cb => cb.checked);
+            const selectAllCb = document.getElementById('actorCallSelectAll');
+            if (selectAllCb) selectAllCb.checked = allChecked;
+            updateActorCallDeleteBtn();
+            return;
+          }
+
           const idx = e.target.dataset.idx;
           if (e.target.classList.contains('actor-call-date')) {
             actorCallTimes[idx].date = e.target.value;
@@ -1135,6 +1159,20 @@ S#7 버스정류장 앞 / 오후
           });
         });
       }
+
+      // 전체 선택 체크박스
+      document.getElementById('actorCallSelectAll').addEventListener('change', (e) => {
+        document.querySelectorAll('.actor-call-check').forEach(cb => cb.checked = e.target.checked);
+        updateActorCallDeleteBtn();
+      });
+
+      // 선택 삭제 버튼
+      document.getElementById('deleteSelectedActorCallBtn').addEventListener('click', () => {
+        const checked = [...document.querySelectorAll('.actor-call-check:checked')];
+        const indicesToDelete = new Set(checked.map(cb => Number(cb.dataset.idx)));
+        actorCallTimes = actorCallTimes.filter((_, i) => !indicesToDelete.has(i));
+        renderActorCallTimeTable();
+      });
 
       function getStaffDepartments() {
         return ['전체', '연출팀', '제작팀', '촬영팀', '조명팀', '음향팀', '미술팀', '분장팀'];
