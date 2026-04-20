@@ -1620,8 +1620,8 @@ S#7 버스정류장 앞 / 오후
 
         const GRN = '#b5d6a7';
         const BDR = '1px solid #aaa';
-        const cellStyle = (extra='') => `border:${BDR};padding:4px 6px;font-size:10px;vertical-align:top;${extra}`;
-        const thStyle = (extra='') => `border:${BDR};padding:4px 6px;background:#f0f0f0;font-size:10px;font-weight:600;text-align:center;${extra}`;
+        const cellStyle = (extra='') => `border:${BDR};padding:4px 6px;font-size:10px;vertical-align:top;word-break:break-word;overflow-wrap:break-word;overflow:hidden;${extra}`;
+        const thStyle = (extra='') => `border:${BDR};padding:4px 6px;background:#f0f0f0;font-size:10px;font-weight:600;text-align:center;word-break:keep-all;${extra}`;
         const secHdrStyle = `border:${BDR};padding:5px 8px;background:${GRN};font-size:11px;font-weight:700;text-align:center;`;
 
         const mkTh = (txt, extra='') => `<th style="${thStyle(extra)}">${txt}</th>`;
@@ -1659,7 +1659,7 @@ S#7 버스정류장 앞 / 오후
           html += `<div class="page-day" style="padding:14px;">`;
 
           // ── 상단: 회차 + 기본 정보 ──
-          html += `<table style="width:100%;border-collapse:collapse;margin-bottom:2px;font-size:10px;">
+          html += `<table style="width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:2px;font-size:10px;">
             <tr>
               <td rowspan="3" style="border:${BDR};width:65px;text-align:center;vertical-align:middle;font-size:36px;font-weight:900;line-height:1.1;">${dayIdx + 1}</td>
               <td style="${cellStyle('width:70px;font-size:9px;color:#555;text-align:center;')}">촬영일시</td>
@@ -1684,7 +1684,7 @@ S#7 버스정류장 앞 / 오후
 
           // ── 촬영씬 ──
           const sceneMinRows = Math.max(scenes.length, 5);
-          html += `<table style="width:100%;border-collapse:collapse;font-size:10px;margin-bottom:4px;">
+          html += `<table style="width:100%;border-collapse:collapse;table-layout:fixed;font-size:10px;margin-bottom:4px;">
             <thead>
               ${mkSecHdr('촬영씬', 9)}
               <tr>
@@ -1818,7 +1818,16 @@ S#7 버스정류장 앞 / 오후
 
           // 콜시간 행 생성 (전체 부서는 개별 부서로 펼침)
           const allCallEntries = [
-            ...actorInfo.map(a => ({ name: a.actor ? (a.character ? `${a.actor}(${a.character})` : a.actor) : '-', time: a.callTime, place: a.meetingPlace })),
+            ...actorInfo.map(a => {
+              let name;
+              if (a.actor === '전체') {
+                const allActorNames = staff.filter(m => m.type === '배우').map(m => m.name).join(', ');
+                name = allActorNames ? `전체(${allActorNames})` : '전체';
+              } else {
+                name = a.actor ? (a.character ? `${a.actor}(${a.character})` : a.actor) : '-';
+              }
+              return { name, time: a.callTime, place: a.meetingPlace };
+            }),
             ...expandStaffEntries(staffInfo).map(s => ({ name: s.department || '-', time: s.callTime, place: s.meetingPlace }))
           ];
           const callMinRows = Math.max(allCallEntries.length, 10);
@@ -1833,22 +1842,22 @@ S#7 버스정류장 앞 / 오후
             }
           }
 
-          html += `<table style="width:100%;border-collapse:collapse;font-size:10px;margin-bottom:4px;">
+          html += `<table style="width:100%;border-collapse:collapse;table-layout:fixed;font-size:10px;margin-bottom:4px;">
             <tr>
               <td style="width:65%;vertical-align:top;padding:0;border:none;">
-                <table style="width:100%;border-collapse:collapse;">
+                <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
                   <thead>
                     ${mkSecHdr('전체일정', 7)}
-                    <tr>${mkTh('시간','width:90px;')}${mkTh('일정')}${mkTh('씬','width:36px;')}${mkTh('인물')}${mkTh('의상')}${mkTh('소품')}${mkTh('분장')}</tr>
+                    <tr>${mkTh('시간','width:80px;')}${mkTh('일정')}${mkTh('씬','width:30px;')}${mkTh('인물','width:60px;')}${mkTh('의상','width:50px;')}${mkTh('소품','width:50px;')}${mkTh('분장','width:30px;')}</tr>
                   </thead>
                   <tbody>${schedRows}</tbody>
                 </table>
               </td>
               <td style="width:35%;vertical-align:top;padding:0;border:none;">
-                <table style="width:100%;border-collapse:collapse;">
+                <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
                   <thead>
                     ${mkSecHdr('콜시간', 3)}
-                    <tr>${mkTh('이름')}${mkTh('시간','width:48px;')}${mkTh('장소')}</tr>
+                    <tr>${mkTh('이름')}${mkTh('시간','width:44px;')}${mkTh('장소')}</tr>
                   </thead>
                   <tbody>${callRows}</tbody>
                   <tfoot>
@@ -1863,7 +1872,7 @@ S#7 버스정류장 앞 / 오후
           </table>`;
 
           // ── 세부진행 ──
-          html += `<table style="width:100%;border-collapse:collapse;font-size:10px;margin-bottom:4px;">
+          html += `<table style="width:100%;border-collapse:collapse;table-layout:fixed;font-size:10px;margin-bottom:4px;">
             <thead>${mkSecHdr('세부진행', 2)}</thead>
             <tbody>
               <tr>
@@ -1880,7 +1889,7 @@ S#7 버스정류장 앞 / 오후
           </table>`;
 
           // ── 교통편 | 기타 사항 ──
-          html += `<table style="width:100%;border-collapse:collapse;font-size:10px;margin-bottom:4px;">
+          html += `<table style="width:100%;border-collapse:collapse;table-layout:fixed;font-size:10px;margin-bottom:4px;">
             <tbody>
               <tr>
                 <td style="${cellStyle('width:50%;height:55px;')}">
@@ -1896,7 +1905,7 @@ S#7 버스정류장 앞 / 오후
           </table>`;
 
           // ── 추가사항 ──
-          html += `<table style="width:100%;border-collapse:collapse;font-size:10px;margin-bottom:4px;">
+          html += `<table style="width:100%;border-collapse:collapse;table-layout:fixed;font-size:10px;margin-bottom:4px;">
             <thead>${mkSecHdr('추가사항', 1)}</thead>
             <tbody>
               <tr>
@@ -1913,7 +1922,7 @@ S#7 버스정류장 앞 / 오후
             const actorMembers = staff.filter(m => m.type === '배우');
             const allMembers = [...staffMembers, ...actorMembers];
             const cols = 3;
-            html += `<table style="width:100%;border-collapse:collapse;font-size:10px;margin-bottom:4px;">
+            html += `<table style="width:100%;border-collapse:collapse;table-layout:fixed;font-size:10px;margin-bottom:4px;">
               <thead>
                 ${mkSecHdr('스탭 연락처', cols * 3)}
                 <tr>
@@ -1966,8 +1975,8 @@ S#7 버스정류장 앞 / 오후
 
         try {
           const { jsPDF } = window.jspdf;
-          // A4 landscape: 297mm x 210mm
-          const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+          // A4 portrait: 210mm x 297mm
+          const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
           const pageW = doc.internal.pageSize.getWidth();
           const pageH = doc.internal.pageSize.getHeight();
           const margin = 6;
@@ -1977,12 +1986,19 @@ S#7 버스정류장 앞 / 오후
           for (let i = 0; i < dayDivs.length; i++) {
             if (i > 0) doc.addPage();
 
+            // 렌더링 전 고정 너비 설정 (A4 세로 기준)
+            const prevWidth = dayDivs[i].style.width;
+            dayDivs[i].style.width = '750px';
+
             const canvas = await html2canvas(dayDivs[i], {
               scale: 2,
               useCORS: true,
               backgroundColor: '#ffffff',
-              logging: false
+              logging: false,
+              windowWidth: 750
             });
+
+            dayDivs[i].style.width = prevWidth;
 
             const imgData = canvas.toDataURL('image/jpeg', 0.98);
             // canvas px → mm (scale:2 = 192dpi)
