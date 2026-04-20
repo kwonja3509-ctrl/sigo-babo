@@ -1763,21 +1763,19 @@ S#7 버스정류장 앞 / 오후
                   ${mkTd(s1+'-'+e1,'text-align:center;white-space:nowrap;color:#b45309;font-weight:700;')}
                   ${mkTd('S#'+sc.number+' 세팅','text-align:center;color:#b45309;font-weight:700;')}
                   ${mkTd('S#'+sc.number,'text-align:center;color:#b45309;font-weight:700;')}
-                  ${mkTd('')}
+                  ${mkTd('')}${mkTd('')}${mkTd('')}${mkTd('')}
                 </tr>`;
               }
               // 촬영 행
               const s2 = minutesToTime(curMins); curMins += shootMins; const e2 = minutesToTime(curMins);
-              const detailParts = [
-                sc.characters ? '인물: '+sc.characters : '',
-                sc.costume    ? '의상: '+sc.costume    : '',
-                props         ? '소품: '+props         : ''
-              ].filter(Boolean).join('  /  ');
               schedRows += `<tr style="${bg}">
                 ${mkTd(s2+'-'+e2,'text-align:center;white-space:nowrap;font-size:10px;')}
                 ${mkTd('S#'+sc.number+' 촬영','text-align:center;font-weight:700;')}
                 ${mkTd('S#'+sc.number,'text-align:center;font-weight:700;')}
-                ${mkTd(detailParts)}
+                ${mkTd(sc.characters)}
+                ${mkTd(sc.costume)}
+                ${mkTd(props)}
+                ${mkTd('')}
               </tr>`;
               curMins += moveMins;
 
@@ -1787,7 +1785,7 @@ S#7 버스정류장 앞 / 오후
                 schedRows += `<tr style="background:#f0fdf4;">
                   ${mkTd(s3+'-'+e3,'text-align:center;white-space:nowrap;color:#16a34a;font-weight:700;')}
                   ${mkTd('식사','text-align:center;color:#16a34a;font-weight:700;')}
-                  ${mkTd('')}${mkTd('')}
+                  ${mkTd('')}${mkTd('')}${mkTd('')}${mkTd('')}${mkTd('')}
                 </tr>`;
               }
             });
@@ -1805,19 +1803,17 @@ S#7 버스정류장 앞 / 오후
                 ${mkTd(s1+'-'+e1,'text-align:center;white-space:nowrap;color:#b45309;font-weight:700;')}
                 ${mkTd('S#'+sc.number+' 세팅','text-align:center;color:#b45309;font-weight:700;')}
                 ${mkTd('S#'+sc.number,'text-align:center;color:#b45309;font-weight:700;')}
-                ${mkTd('')}
+                ${mkTd('')}${mkTd('')}${mkTd('')}${mkTd('')}
               </tr>`;
               const s2 = minutesToTime(curMins); curMins += shootMins; const e2 = minutesToTime(curMins);
-              const detailParts2 = [
-                sc.characters ? '인물: '+sc.characters : '',
-                sc.costume    ? '의상: '+sc.costume    : '',
-                props         ? '소품: '+props         : ''
-              ].filter(Boolean).join('  /  ');
               schedRows += `<tr style="${bg}">
                 ${mkTd(s2+'-'+e2,'text-align:center;white-space:nowrap;font-size:10px;')}
                 ${mkTd('S#'+sc.number+' 촬영','text-align:center;font-weight:700;')}
                 ${mkTd('S#'+sc.number,'text-align:center;font-weight:700;')}
-                ${mkTd(detailParts2)}
+                ${mkTd(sc.characters)}
+                ${mkTd(sc.costume)}
+                ${mkTd(props)}
+                ${mkTd('')}
               </tr>`;
             });
           }
@@ -1853,8 +1849,8 @@ S#7 버스정류장 앞 / 오후
               <td style="width:65%;vertical-align:top;padding:0;border:none;">
                 <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
                   <thead>
-                    ${mkSecHdr('전체일정', 4)}
-                    <tr>${mkTh('시간','width:80px;')}${mkTh('일정','width:60px;')}${mkTh('씬','width:36px;')}${mkTh('인물 / 의상 / 소품 / 분장')}</tr>
+                    ${mkSecHdr('전체일정', 7)}
+                    <tr>${mkTh('시간','width:75px;')}${mkTh('일정','width:60px;')}${mkTh('씬','width:32px;')}${mkTh('인물')}${mkTh('의상')}${mkTh('소품')}${mkTh('분장','width:30px;')}</tr>
                   </thead>
                   <tbody>${schedRows}</tbody>
                 </table>
