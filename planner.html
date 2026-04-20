@@ -1686,18 +1686,17 @@ S#7 버스정류장 앞 / 오후
           // ── 촬영씬 ──
           const sceneMinRows = Math.max(scenes.length, 5);
           html += `<table style="width:100%;border-collapse:collapse;table-layout:fixed;font-size:10px;margin-bottom:4px;">
+            <colgroup>
+              <col style="width:28px;"><col style="width:36px;"><col style="width:24px;">
+              <col style="width:40px;"><col style="width:55px;"><col style="width:75px;">
+              <col><col style="width:70px;"><col style="width:26px;">
+            </colgroup>
             <thead>
               ${mkSecHdr('촬영씬', 9)}
               <tr>
-                ${mkTh('S#', 'width:32px;')}
-                ${mkTh('D/E/N', 'width:42px;')}
-                ${mkTh('E/I', 'width:32px;')}
-                ${mkTh('DAY', 'width:50px;')}
-                ${mkTh('장소')}
-                ${mkTh('촬영장소')}
-                ${mkTh('내용')}
-                ${mkTh('주요인물')}
-                ${mkTh('CUT', 'width:32px;')}
+                ${mkTh('S#')}${mkTh('D/E/N')}${mkTh('E/I')}
+                ${mkTh('DAY')}${mkTh('장소')}${mkTh('촬영장소')}
+                ${mkTh('내용')}${mkTh('주요인물')}${mkTh('CUT')}
               </tr>
             </thead>
             <tbody>`;
@@ -1706,19 +1705,21 @@ S#7 버스정류장 앞 / 오후
             const bg = i % 2 !== 0 ? 'background:#fafafa;' : '';
             if (sc) {
               const ei = sc.extInt === '실내' ? 'I' : 'E';
+              const locData = locations.find(l => l.name === sc.location);
+              const shootingAddr = locData?.address || sc.location || '';
               html += `<tr style="${bg}">
                 ${mkTd(sc.number, 'text-align:center;font-weight:700;')}
                 ${mkTd(sc.dayNight, 'text-align:center;')}
                 ${mkTd(ei, 'text-align:center;')}
                 ${mkTd(sc.timeDate || '', 'text-align:center;')}
                 ${mkTd(sc.location, 'text-align:center;')}
-                ${mkTd(sc.location, 'text-align:center;')}
-                ${mkTd(sc.description, 'text-align:center;')}
+                ${mkTd(shootingAddr)}
+                ${mkTd(sc.description)}
                 ${mkTd(sc.characters, 'text-align:center;')}
                 ${mkTd(sc.cuts || '', 'text-align:center;font-weight:600;')}
               </tr>`;
             } else {
-              html += `<tr style="${bg}">${mkTd('&nbsp;','text-align:center;')}${mkTd('','text-align:center;')}${mkTd('','text-align:center;')}${mkTd('','text-align:center;')}${mkTd('','text-align:center;')}${mkTd('','text-align:center;')}${mkTd('','text-align:center;')}${mkTd('','text-align:center;')}${mkTd('','text-align:center;')}</tr>`;
+              html += `<tr style="${bg}">${'<td></td>'.repeat(9)}</tr>`;
             }
           }
           html += `</tbody></table>`;
@@ -1760,8 +1761,8 @@ S#7 버스정류장 앞 / 오후
                 const s1 = minutesToTime(curMins); curMins += setupMins; const e1 = minutesToTime(curMins);
                 schedRows += `<tr style="background:#fff8e1;">
                   ${mkTd(s1+'-'+e1,'text-align:center;white-space:nowrap;color:#b45309;font-weight:700;')}
+                  ${mkTd('S#'+sc.number+' 세팅','text-align:center;color:#b45309;font-weight:700;')}
                   ${mkTd('S#'+sc.number,'text-align:center;color:#b45309;font-weight:700;')}
-                  ${mkTd('[ 세팅 ]','color:#b45309;font-weight:700;')}
                   ${mkTd('')}${mkTd('')}${mkTd('')}${mkTd('')}
                 </tr>`;
               }
@@ -1769,8 +1770,8 @@ S#7 버스정류장 앞 / 오후
               const s2 = minutesToTime(curMins); curMins += shootMins; const e2 = minutesToTime(curMins);
               schedRows += `<tr style="${bg}">
                 ${mkTd(s2+'-'+e2,'text-align:center;white-space:nowrap;font-size:10px;')}
+                ${mkTd('S#'+sc.number+' 촬영','text-align:center;font-weight:700;')}
                 ${mkTd('S#'+sc.number,'text-align:center;font-weight:700;')}
-                ${mkTd(sc.description)}
                 ${mkTd(sc.characters)}
                 ${mkTd(sc.costume)}
                 ${mkTd(props)}
@@ -1783,7 +1784,7 @@ S#7 버스정류장 앞 / 오후
                 const s3 = minutesToTime(curMins); curMins += mealMins; const e3 = minutesToTime(curMins);
                 schedRows += `<tr style="background:#f0fdf4;">
                   ${mkTd(s3+'-'+e3,'text-align:center;white-space:nowrap;color:#16a34a;font-weight:700;')}
-                  ${mkTd('[ 식사 ]','text-align:center;color:#16a34a;font-weight:700;')}
+                  ${mkTd('식사','text-align:center;color:#16a34a;font-weight:700;')}
                   ${mkTd('')}${mkTd('')}${mkTd('')}${mkTd('')}${mkTd('')}
                 </tr>`;
               }
@@ -1800,15 +1801,15 @@ S#7 버스정류장 앞 / 오후
               const s1 = minutesToTime(curMins); curMins += setupMins; const e1 = minutesToTime(curMins);
               schedRows += `<tr style="background:#fff8e1;">
                 ${mkTd(s1+'-'+e1,'text-align:center;white-space:nowrap;color:#b45309;font-weight:700;')}
+                ${mkTd('S#'+sc.number+' 세팅','text-align:center;color:#b45309;font-weight:700;')}
                 ${mkTd('S#'+sc.number,'text-align:center;color:#b45309;font-weight:700;')}
-                ${mkTd('[ 세팅 ]','color:#b45309;font-weight:700;')}
                 ${mkTd('')}${mkTd('')}${mkTd('')}${mkTd('')}
               </tr>`;
               const s2 = minutesToTime(curMins); curMins += shootMins; const e2 = minutesToTime(curMins);
               schedRows += `<tr style="${bg}">
                 ${mkTd(s2+'-'+e2,'text-align:center;white-space:nowrap;font-size:10px;')}
+                ${mkTd('S#'+sc.number+' 촬영','text-align:center;font-weight:700;')}
                 ${mkTd('S#'+sc.number,'text-align:center;font-weight:700;')}
-                ${mkTd(sc.description)}
                 ${mkTd(sc.characters)}
                 ${mkTd(sc.costume)}
                 ${mkTd(props)}
