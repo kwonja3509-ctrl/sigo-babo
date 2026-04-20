@@ -34,15 +34,17 @@
       .badge { display: inline-block; background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 999px; padding: 0.35rem 1rem; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.03em; }
       .notice-card { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 16px; padding: 20px 24px; display: flex; gap: 14px; align-items: flex-start; }
       .section-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #64748b; margin-bottom: 8px; }
-      .nav-inner { max-width:1200px; margin:0 auto; padding:0 36px; display:flex; align-items:center; justify-content:space-between; height:72px; gap:24px; }
+      .nav-inner { max-width:1200px; margin:0 auto; padding:0 36px; display:flex; align-items:center; justify-content:space-between; height:72px; gap:16px; }
       .nav-logo-text { color:#fff; font-weight:800; font-size:1rem; letter-spacing:0.01em; }
       .nav-links { display:flex; align-items:center; gap:28px; }
-      .nav-actions { display:flex; align-items:center; gap:10px; flex-shrink:0; }
-      @media (max-width: 480px) {
-        .nav-inner { padding:0 14px; gap:8px; height:56px; }
-        .nav-logo-text { font-size:0.85rem; }
-        .nav-links { gap:12px; }
-        .nav-link { font-size:0.78rem; }
+      .nav-actions { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+      @media (max-width: 640px) {
+        .nav-inner { padding:0 12px; gap:6px; height:52px; }
+        .nav-logo-text { display:none; }
+        .nav-links { gap:10px; }
+        .nav-link { font-size:0.75rem; }
+        .nav-btn-label { display:none; }
+        .nav-actions button { padding:0.35rem 0.6rem !important; font-size:0.78rem !important; }
       }
     </style>
   </head>
@@ -61,10 +63,10 @@
           <a href="budget.html" class="nav-link">예산서</a>
         </nav>
         <div class="nav-actions">
-          <button id="navLoginBtn" onclick="Auth._openModal()" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:999px;padding:0.4rem 0.9rem;font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap;">로그인</button>
+          <button id="navLoginBtn" onclick="Auth._openModal()" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:999px;padding:0.4rem 0.9rem;font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap;">🔑 <span class="nav-btn-label">로그인</span></button>
           <div id="navUserArea" style="display:none;align-items:center;gap:6px;">
-            <span id="navUserLabel" style="color:rgba(255,255,255,0.8);font-size:0.8rem;white-space:nowrap;"></span>
-            <button onclick="Auth._logoutAndReload()" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:999px;padding:0.4rem 0.9rem;font-size:0.8rem;cursor:pointer;white-space:nowrap;">로그아웃</button>
+            <span id="navUserLabel" style="color:rgba(255,255,255,0.8);font-size:0.8rem;white-space:nowrap;max-width:60px;overflow:hidden;text-overflow:ellipsis;"></span>
+            <button onclick="Auth._logoutAndReload()" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:999px;padding:0.4rem 0.9rem;font-size:0.8rem;cursor:pointer;white-space:nowrap;">👋 <span class="nav-btn-label">로그아웃</span></button>
           </div>
         </div>
       </div>

@@ -36,12 +36,13 @@
       .nav-logo-text { color:#fff; font-weight:800; font-size:0.95rem; letter-spacing:0.01em; }
       .nav-links { display:flex; align-items:center; gap:24px; }
       .nav-actions { display:flex; align-items:center; gap:6px; flex-shrink:0; }
-      @media (max-width: 480px) {
-        .nav-inner { padding:0 10px; gap:6px; height:56px; }
-        .nav-logo-text { font-size:0.82rem; }
+      @media (max-width: 640px) {
+        .nav-inner { padding:0 12px; gap:6px; height:52px; }
+        .nav-logo-text { display:none; }
         .nav-links { gap:10px; }
         .nav-link { font-size:0.75rem; }
-        .nav-btn { font-size:0.72rem !important; padding:0.35rem 0.6rem !important; }
+        .nav-btn-label { display:none; }
+        .nav-actions button { padding:0.35rem 0.6rem !important; font-size:0.78rem !important; }
       }
     </style>
   </head>
@@ -60,8 +61,8 @@
           <a href="budget.html" class="nav-link">예산서</a>
         </nav>
         <div class="nav-actions">
-          <button id="saveProjectBtn" class="nav-btn" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:999px;padding:0.4rem 0.8rem;font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap;">💾 저장</button>
-          <button id="loadProjectBtn" class="nav-btn" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:999px;padding:0.4rem 0.8rem;font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap;">📂 불러오기</button>
+          <button id="saveProjectBtn" class="nav-btn" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:999px;padding:0.4rem 0.8rem;font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap;">💾 <span class="nav-btn-label">저장</span></button>
+          <button id="loadProjectBtn" class="nav-btn" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:999px;padding:0.4rem 0.8rem;font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap;">📂 <span class="nav-btn-label">불러오기</span></button>
         </div>
       </div>
     </header>
