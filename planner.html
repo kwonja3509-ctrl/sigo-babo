@@ -717,15 +717,32 @@ S#7 버스정류장 앞 / 오후
       });
 
       // ===== 멀티 슬롯 저장/불러오기 =====
-      const STORAGE_KEY = 'filmProjects';
+      function getStorageKey() {
+        const user = Auth.getCurrentUser();
+        return user ? `filmProjects_${user}` : null;
+      }
+
+      function requireLogin(callback) {
+        if (!Auth.getCurrentUser()) {
+          const prev = Auth._onLogin;
+          Auth._onLogin = () => { Auth._onLogin = prev; callback(); };
+          Auth._openModal();
+          return false;
+        }
+        return true;
+      }
 
       function getAllProjects() {
-        try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+        const key = getStorageKey();
+        if (!key) return [];
+        try { return JSON.parse(localStorage.getItem(key)) || []; }
         catch { return []; }
       }
 
       function saveAllProjects(projects) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+        const key = getStorageKey();
+        if (!key) return;
+        localStorage.setItem(key, JSON.stringify(projects));
       }
 
       function gatherCurrentData() {
@@ -782,16 +799,20 @@ S#7 버스정류장 앞 / 오후
       }
 
       // 저장하기 버튼
-      document.getElementById('saveProjectBtn').addEventListener('click', () => {
+      function doSaveProject() {
         const title = document.getElementById('movieTitle').value.trim() || '제목 없음';
         const defaultName = title + ' — ' + new Date().toLocaleString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
         const name = prompt('저장 이름을 입력하세요:', defaultName);
-        if (name === null) return; // 취소
+        if (name === null) return;
 
         const projects = getAllProjects();
         projects.unshift({ id: Date.now(), name: name.trim() || defaultName, savedAt: new Date().toISOString(), data: gatherCurrentData() });
         saveAllProjects(projects);
         alert(`"${name.trim() || defaultName}"(으)로 저장되었습니다!`);
+      }
+
+      document.getElementById('saveProjectBtn').addEventListener('click', () => {
+        requireLogin(doSaveProject);
       });
 
       // 불러오기 모달
@@ -849,7 +870,9 @@ S#7 버스정류장 앞 / 오후
         loadModal.style.display = 'flex';
       }
 
-      document.getElementById('loadProjectBtn').addEventListener('click', openLoadModal);
+      document.getElementById('loadProjectBtn').addEventListener('click', () => {
+        requireLogin(openLoadModal);
+      });
       document.getElementById('loadModalClose').addEventListener('click', () => { loadModal.style.display = 'none'; });
       loadModal.addEventListener('click', (e) => { if (e.target === loadModal) loadModal.style.display = 'none'; });
 

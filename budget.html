@@ -699,15 +699,32 @@
       });
 
       // ===== 멀티슬롯 저장 / 불러오기 =====
-      const BUDGET_STORAGE_KEY = 'budgetProjects';
+      function getBudgetStorageKey() {
+        const user = Auth.getCurrentUser();
+        return user ? `budgetProjects_${user}` : null;
+      }
+
+      function requireBudgetLogin(callback) {
+        if (!Auth.getCurrentUser()) {
+          const prev = Auth._onLogin;
+          Auth._onLogin = () => { Auth._onLogin = prev; callback(); };
+          Auth._openModal();
+          return false;
+        }
+        return true;
+      }
 
       function getAllBudgetProjects() {
-        try { return JSON.parse(localStorage.getItem(BUDGET_STORAGE_KEY)) || []; }
+        const key = getBudgetStorageKey();
+        if (!key) return [];
+        try { return JSON.parse(localStorage.getItem(key)) || []; }
         catch { return []; }
       }
 
       function saveAllBudgetProjects(projects) {
-        localStorage.setItem(BUDGET_STORAGE_KEY, JSON.stringify(projects));
+        const key = getBudgetStorageKey();
+        if (!key) return;
+        localStorage.setItem(key, JSON.stringify(projects));
       }
 
       function gatherBudgetData() {
@@ -725,7 +742,7 @@
       }
 
       // nav 저장 버튼
-      document.getElementById('saveBudgetNavBtn').addEventListener('click', () => {
+      function doSaveBudget() {
         const projects = getAllBudgetProjects();
         const defaultName = '예산서 — ' + new Date().toLocaleString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
         const name = prompt('저장 이름을 입력하세요:', defaultName);
@@ -733,6 +750,10 @@
         projects.unshift({ id: Date.now(), name: name.trim() || defaultName, savedAt: new Date().toISOString(), data: gatherBudgetData() });
         saveAllBudgetProjects(projects);
         alert(`"${name.trim() || defaultName}"(으)로 저장되었습니다!`);
+      }
+
+      document.getElementById('saveBudgetNavBtn').addEventListener('click', () => {
+        requireBudgetLogin(doSaveBudget);
       });
 
       // nav 불러오기 버튼
@@ -786,7 +807,9 @@
         budgetLoadModal.style.display = 'flex';
       }
 
-      document.getElementById('loadBudgetNavBtn').addEventListener('click', openBudgetLoadModal);
+      document.getElementById('loadBudgetNavBtn').addEventListener('click', () => {
+        requireBudgetLogin(openBudgetLoadModal);
+      });
       document.getElementById('budgetLoadModalClose').addEventListener('click', () => { budgetLoadModal.style.display = 'none'; });
       budgetLoadModal.addEventListener('click', e => { if (e.target === budgetLoadModal) budgetLoadModal.style.display = 'none'; });
 
