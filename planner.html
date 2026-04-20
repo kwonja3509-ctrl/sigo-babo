@@ -1223,7 +1223,6 @@ S#7 버스정류장 앞 / 오후
             </td>
             <td><input type="time" class="staff-call-time" data-idx="${idx}" value="${callTime.callTime}" style="width: 100px;"></td>
             <td><input type="text" class="staff-meeting-place" data-idx="${idx}" value="${callTime.meetingPlace}" placeholder="모임 장소"></td>
-            <td><input type="time" class="staff-start-time" data-idx="${idx}" value="${callTime.startTime}" style="width: 100px;"></td>
             <td><input type="text" class="staff-call-notes" data-idx="${idx}" value="${callTime.notes}" placeholder="비고"></td>
             <td><button class="btn-delete-staff-calltime btn-small" data-idx="${idx}" style="background:#fee2e2;color:#dc2626;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;">삭제</button></td>
           `;
@@ -1246,8 +1245,6 @@ S#7 버스정류장 앞 / 오후
             staffCallTimes[idx].callTime = e.target.value;
           } else if (e.target.classList.contains('staff-meeting-place')) {
             staffCallTimes[idx].meetingPlace = e.target.value;
-          } else if (e.target.classList.contains('staff-start-time')) {
-            staffCallTimes[idx].startTime = e.target.value;
           } else if (e.target.classList.contains('staff-call-notes')) {
             staffCallTimes[idx].notes = e.target.value;
           }
