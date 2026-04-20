@@ -1101,6 +1101,7 @@ S#7 버스정류장 앞 / 오후
             <td>
               <select class="actor-call-actor" data-idx="${idx}" style="min-width:120px;">
                 <option value="">배우 선택</option>
+                <option value="전체" ${callTime.actor === '전체' ? 'selected' : ''}>전체</option>
                 ${actors.map(actor => `<option value="${actor.name}" ${callTime.actor === actor.name ? 'selected' : ''}>${actor.name}</option>`).join('')}
               </select>
             </td>
@@ -1139,9 +1140,13 @@ S#7 버스정류장 앞 / 오후
             actorCallTimes[idx].date = e.target.value;
           } else if (e.target.classList.contains('actor-call-actor')) {
             actorCallTimes[idx].actor = e.target.value;
-            // 배우 선택 시 캐릭터명 자동 입력
-            const selectedActor = actors.find(a => a.name === e.target.value);
-            actorCallTimes[idx].character = selectedActor ? selectedActor.character : '';
+            // 배우 선택 시 캐릭터명 자동 입력 (전체 선택 시 '-')
+            if (e.target.value === '전체') {
+              actorCallTimes[idx].character = '전체';
+            } else {
+              const selectedActor = actors.find(a => a.name === e.target.value);
+              actorCallTimes[idx].character = selectedActor ? selectedActor.character : '';
+            }
             renderActorCallTimeTable(); // 캐릭터명 업데이트를 위해 재렌더링
           } else if (e.target.classList.contains('actor-call-time')) {
             actorCallTimes[idx].callTime = e.target.value;
