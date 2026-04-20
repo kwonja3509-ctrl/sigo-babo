@@ -801,6 +801,7 @@ S#7 버스정류장 앞 / 오후
 
       // 저장하기 버튼
       function doSaveProject() {
+        if (!Auth.getCurrentUser()) { Auth._openModal(); return; }
         const title = document.getElementById('movieTitle').value.trim() || '제목 없음';
         const defaultName = title + ' — ' + new Date().toLocaleString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
         const name = prompt('저장 이름을 입력하세요:', defaultName);
@@ -821,6 +822,7 @@ S#7 버스정류장 앞 / 오후
       const loadModalList = document.getElementById('loadModalList');
 
       function openLoadModal() {
+        if (!Auth.getCurrentUser()) { Auth._openModal(); return; }
         const projects = getAllProjects();
         loadModalList.innerHTML = '';
 
