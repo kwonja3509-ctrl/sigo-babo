@@ -365,6 +365,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.16/mammoth.browser.min.js"></script>
     <script src="https://unpkg.com/hwp.js/dist/hwp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
@@ -1654,9 +1656,7 @@ S#7 버스정류장 앞 / 오후
           const callTime = staffInfo[0]?.callTime || actorInfo[0]?.callTime || '';
           const shootingTime = staffInfo[0]?.startTime || actorInfo[0]?.startTime || '';
 
-          const pb = dayIdx > 0 ? 'page-break-before:always;' : '';
-
-          html += `<div style="${pb}padding:14px;">`;
+          html += `<div class="page-day" style="padding:14px;">`;
 
           // ── 상단: 회차 + 기본 정보 ──
           html += `<table style="width:100%;border-collapse:collapse;margin-bottom:2px;font-size:10px;">
@@ -1956,9 +1956,56 @@ S#7 버스정류장 앞 / 오후
         html2pdf().set({ margin:8, filename:'일촬표.pdf', image:{type:'jpeg',quality:0.98}, html2canvas:{scale:2}, jsPDF:{unit:'mm',format:'a4',orientation:'landscape'} }).from(scheduleContainer).save();
       });
 
-      document.getElementById('downloadFinalBtn').addEventListener('click', () => {
-        if (!finalPreview.querySelector('table')) { alert('먼저 미리보기를 생성하세요.'); return; }
-        html2pdf().set({ margin:[8,8,8,8], filename:'촬영계획표_통합본.pdf', image:{type:'jpeg',quality:0.98}, html2canvas:{scale:2,useCORS:true}, jsPDF:{unit:'mm',format:'a4',orientation:'portrait'} }).from(finalPreview).save();
+      document.getElementById('downloadFinalBtn').addEventListener('click', async () => {
+        const dayDivs = [...finalPreview.querySelectorAll('.page-day')];
+        if (dayDivs.length === 0) { alert('먼저 미리보기를 생성하세요.'); return; }
+
+        const btn = document.getElementById('downloadFinalBtn');
+        btn.disabled = true;
+        btn.textContent = 'PDF 생성 중...';
+
+        try {
+          const { jsPDF } = window.jspdf;
+          // A4 landscape: 297mm x 210mm
+          const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+          const pageW = doc.internal.pageSize.getWidth();
+          const pageH = doc.internal.pageSize.getHeight();
+          const margin = 6;
+          const availW = pageW - margin * 2;
+          const availH = pageH - margin * 2;
+
+          for (let i = 0; i < dayDivs.length; i++) {
+            if (i > 0) doc.addPage();
+
+            const canvas = await html2canvas(dayDivs[i], {
+              scale: 2,
+              useCORS: true,
+              backgroundColor: '#ffffff',
+              logging: false
+            });
+
+            const imgData = canvas.toDataURL('image/jpeg', 0.98);
+            // canvas px → mm (scale:2 = 192dpi)
+            const canvasWmm = canvas.width / 192 * 25.4;
+            const canvasHmm = canvas.height / 192 * 25.4;
+
+            // 페이지에 맞게 비율 유지하며 축소
+            const scale = Math.min(availW / canvasWmm, availH / canvasHmm);
+            const finalW = canvasWmm * scale;
+            const finalH = canvasHmm * scale;
+            const offsetX = margin + (availW - finalW) / 2;
+            const offsetY = margin + (availH - finalH) / 2;
+
+            doc.addImage(imgData, 'JPEG', offsetX, offsetY, finalW, finalH);
+          }
+
+          doc.save('촬영계획표_통합본.pdf');
+        } catch (e) {
+          alert('PDF 생성 중 오류가 발생했습니다: ' + e.message);
+        } finally {
+          btn.disabled = false;
+          btn.textContent = '통합본 PDF';
+        }
       });
 
       // ===== 씬 리스트 PDF 다운로드 =====
