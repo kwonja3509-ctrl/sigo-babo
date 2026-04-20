@@ -1,0 +1,4 @@
+@import "tailwindcss";
+@source "../index.html";
+@source "../planner.html";
+@source "../budget.html";
