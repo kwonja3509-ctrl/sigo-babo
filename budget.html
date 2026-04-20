@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>예산서 작성</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      html { scroll-behavior: smooth; }
+      body { background: #f8fafc; color: #334155; font-family: 'Malgun Gothic', -apple-system, sans-serif; }
+      .glass-card { background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 4px 24px rgba(15,23,42,0.06); border-radius: 20px; }
+      .btn-primary { background: #0b2552; color: #ffffff; }
+      .btn-secondary { background: #f8fafc; border: 1px solid #cbd5e1; color: #334155; }
+      .btn-primary, .btn-secondary { display: inline-flex; align-items: center; justify-content: center; padding: 0.6rem 1.2rem; border-radius: 999px; font-weight: 700; font-size: 0.9rem; transition: transform 0.18s, opacity 0.18s; text-decoration: none; border: none; cursor: pointer; }
+      .btn-primary:hover { transform: translateY(-1px); opacity: 0.88; }
+      .btn-secondary:hover { transform: translateY(-1px); background: #e2e8f0; }
+      .btn-small { padding: 0.4rem 0.9rem; font-size: 0.82rem; }
+      .section-title { border-left: 4px solid #0b2552; padding-left: 1rem; }
+      textarea, input, select { background: #f8fafc; border: 1px solid #cbd5e1; color: #334155; padding: 0.5rem 0.75rem; border-radius: 0.5rem; }
+      textarea:focus, input:focus, select:focus { outline: none; border-color: #0b2552; box-shadow: 0 0 0 3px rgba(11,37,82,0.12); }
+      table { border-collapse: collapse; width: 100%; }
+      th, td { border: 1px solid rgba(148,163,184,0.35); padding: 0.75rem; text-align: left; }
+      th { background: #f1f5f9; font-weight: 600; }
+      td input, td select { width: 100%; box-sizing: border-box; }
+      .field-note { color: #64748b; font-size: 0.95rem; }
+      .card-surface { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; }
+      .text-muted { color: #64748b; }
+      .summary-card { background: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1rem; }
+      .overflow-x-auto { overflow-x: auto; }
+      .nav-link { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.9rem; transition: color 0.15s; }
+      .nav-link:hover, .nav-link.active { color: #fff; }
+    </style>
+  </head>
+  <body class="min-h-screen">
+
+    <!-- 네비게이션 -->
+    <header style="background:#0b2552;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,0.18);">
+      <div style="max-width:1280px;margin:0 auto;padding:0 36px;display:flex;align-items:center;justify-content:space-between;height:72px;gap:24px;">
+        <a href="index.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;">
+          <div style="width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#38bdf8,#6366f1);flex-shrink:0;"></div>
+          <span style="color:#fff;font-weight:800;font-size:0.95rem;letter-spacing:0.01em;">SIGO BABO</span>
+        </a>
+        <nav style="display:flex;align-items:center;gap:24px;">
+          <a href="index.html" class="nav-link">홈</a>
+          <a href="planner.html" class="nav-link">촬영 계획표</a>
+          <a href="budget.html" class="nav-link active" style="color:#fff;font-weight:600;">예산서</a>
+        </nav>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+          <button id="resetBudgetNavBtn" style="background:rgba(239,68,68,0.18);color:#fca5a5;border:1px solid rgba(239,68,68,0.35);border-radius:999px;padding:0.4rem 1rem;font-size:0.82rem;font-weight:600;cursor:pointer;">🗑 초기화</button>
+          <button id="saveBudgetNavBtn" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:999px;padding:0.4rem 1rem;font-size:0.82rem;font-weight:600;cursor:pointer;">💾 저장</button>
+          <button id="loadBudgetNavBtn" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:999px;padding:0.4rem 1rem;font-size:0.82rem;font-weight:600;cursor:pointer;">📂 불러오기</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 불러오기 모달 -->
+    <div id="budgetLoadModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;">
+      <div style="background:#fff;border-radius:24px;padding:32px;width:92%;max-width:520px;box-shadow:0 24px 60px rgba(0,0,0,0.18);max-height:80vh;display:flex;flex-direction:column;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+          <h3 style="font-size:1.2rem;font-weight:700;color:#0f172a;margin:0;">저장된 예산서</h3>
+          <button id="budgetLoadModalClose" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:#64748b;line-height:1;">✕</button>
+        </div>
+        <div id="budgetLoadModalList" style="overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:10px;"></div>
+      </div>
+    </div>
+
+    <main class="mx-auto mt-8 max-w-7xl space-y-8 px-4 pb-16 sm:px-6 lg:px-8">
+      <!-- 예산 개요 섹션 -->
+      <section class="rounded-[32px] p-8 glass-card">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+          <h2 class="section-title mb-0 text-2xl font-semibold text-slate-900">예산 개요</h2>
+          <div class="flex items-center gap-3">
+            <label class="flex items-center gap-2 text-sm">
+              <input type="checkbox" id="showExpenseToggle" checked class="rounded">
+              <span>지출 내역 표시</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- 전체 예산 설정 -->
+        <div class="mb-6 p-4 rounded-lg border border-slate-300 bg-slate-50">
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-6">
+            <div class="flex-1">
+              <label for="totalBudgetInput" class="block text-sm font-semibold text-slate-700 mb-2">
+                💰 전체 예산 설정
+              </label>
+              <div class="flex items-center gap-2">
+                <span class="text-xl font-bold text-slate-600">₩</span>
+                <input 
+                  type="number" 
+                  id="totalBudgetInput" 
+                  placeholder="0" 
+                  class="flex-1 px-4 py-2 text-lg font-semibold text-slate-900" 
+                  min="0" 
+                />
+              </div>
+              <p class="text-xs text-slate-500 mt-1">프로젝트의 최대 예산을 설정하세요</p>
+            </div>
+            <button id="saveTotalBudgetBtn" class="btn-primary btn-small" style="gap:6px;">
+              💾 저장
+            </button>
+          </div>
+        </div>
+
+        <!-- 예산 상태 알림 -->
+        <div id="budgetAlert" class="mb-6 p-4 rounded-lg border-2 hidden" style="border-color:#ef4444;background:#fef2f2;">
+          <div class="flex items-start gap-3">
+            <span class="text-2xl">⚠️</span>
+            <div>
+              <p id="budgetAlertText" class="font-semibold text-red-700"></p>
+              <p id="budgetAlertDetail" class="text-sm text-red-600 mt-1"></p>
+            </div>
+          </div>
+        </div>
+
+        <div id="budgetSuggestion" class="mb-6 p-4 rounded-lg border-2 hidden" style="border-color:#3b82f6;background:#eff6ff;">
+          <div class="flex items-start gap-3">
+            <span class="text-2xl">💡</span>
+            <div>
+              <p id="budgetSuggestionText" class="font-semibold text-blue-700"></p>
+              <p id="budgetSuggestionDetail" class="text-sm text-blue-600 mt-1"></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-4">
+          <div class="summary-card">
+            <p class="text-sm text-slate-500">총 예산</p>
+            <p id="totalBudget" class="mt-2 text-3xl font-bold text-slate-900">₩0</p>
+          </div>
+          <div class="summary-card expense-item" id="expenseCard">
+            <p class="text-sm text-slate-500">총 지출</p>
+            <p id="totalExpense" class="mt-2 text-3xl font-bold text-red-600">₩0</p>
+          </div>
+          <div class="summary-card expense-item" id="remainingCard">
+            <p class="text-sm text-slate-500">잔여 예산</p>
+            <p id="remainingBudget" class="mt-2 text-3xl font-bold text-green-600">₩0</p>
+          </div>
+          <div class="summary-card expense-item" id="usageCard">
+            <p class="text-sm text-slate-500">사용률</p>
+            <p id="usageRate" class="mt-2 text-3xl font-bold text-slate-900">0%</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 단계별 예산 요약 섹션 -->
+      <section class="rounded-[32px] p-8 glass-card">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+          <h2 class="section-title mb-0 text-2xl font-semibold text-slate-900">단계별 예산</h2>
+          <div class="flex gap-3">
+            <button id="resetBudgetBtn" class="btn-secondary btn-small" style="gap:6px;color:#dc2626;border-color:#fca5a5;">
+              🗑 초기화
+            </button>
+            <button id="downloadPhaseBtn" class="btn-secondary btn-small" style="gap:6px;">
+              📄 단계별 예산 PDF
+            </button>
+            <button id="saveBudgetBtn" class="btn-primary btn-small" style="gap:6px;">
+              💾 예산 저장하기
+            </button>
+          </div>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-3">
+          <!-- 사전제작 -->
+          <div class="rounded-2xl p-5 phase-summary-card" data-phase="사전제작" style="background:#f0f4ff;border:1px solid #c7d4f7;cursor:pointer;transition:all 0.2s;user-select:none;">
+            <div class="flex items-center justify-between">
+              <div class="flex-1">
+                <p class="text-sm font-semibold mb-1" style="color:#0b2552;">📋 사전제작</p>
+                <p class="text-xs text-slate-500 mb-3">기획 · 캐스팅 · 준비</p>
+                <p class="text-xl font-bold text-slate-900">예산 <span id="phase0Budget">₩0</span></p>
+                <div class="mt-3 rounded-full overflow-hidden" style="height:6px;background:#dbeafe;">
+                  <div id="phase0Bar" style="height:100%;width:0%;background:#0b2552;border-radius:999px;transition:width 0.4s;"></div>
+                </div>
+              </div>
+              <div class="text-2xl ml-3 phase-toggle-icon">▼</div>
+            </div>
+            <div class="phase-details hidden mt-4 pt-4 border-t border-slate-300" style="border-color:#c7d4f7;">
+              <div id="phase0Details" class="text-xs space-y-2"></div>
+            </div>
+          </div>
+
+          <!-- 제작 -->
+          <div class="rounded-2xl p-5 phase-summary-card" data-phase="제작" style="background:#f0fff4;border:1px solid #86efac;cursor:pointer;transition:all 0.2s;user-select:none;">
+            <div class="flex items-center justify-between">
+              <div class="flex-1">
+                <p class="text-sm font-semibold mb-1" style="color:#166534;">🎬 제작</p>
+                <p class="text-xs text-slate-500 mb-3">촬영 · 인건비 · 장소</p>
+                <p class="text-xl font-bold text-slate-900">예산 <span id="phase1Budget">₩0</span></p>
+                <div class="mt-3 rounded-full overflow-hidden" style="height:6px;background:#dcfce7;">
+                  <div id="phase1Bar" style="height:100%;width:0%;background:#166534;border-radius:999px;transition:width 0.4s;"></div>
+                </div>
+              </div>
+              <div class="text-2xl ml-3 phase-toggle-icon">▼</div>
+            </div>
+            <div class="phase-details hidden mt-4 pt-4 border-t border-slate-300" style="border-color:#86efac;">
+              <div id="phase1Details" class="text-xs space-y-2"></div>
+            </div>
+          </div>
+
+          <!-- 후반제작 -->
+          <div class="rounded-2xl p-5 phase-summary-card" data-phase="후반제작" style="background:#fef9f0;border:1px solid #fcd34d;cursor:pointer;transition:all 0.2s;user-select:none;">
+            <div class="flex items-center justify-between">
+              <div class="flex-1">
+                <p class="text-sm font-semibold mb-1" style="color:#92400e;">✂️ 후반제작</p>
+                <p class="text-xs text-slate-500 mb-3">편집 · 색보정 · 음향</p>
+                <p class="text-xl font-bold text-slate-900">예산 <span id="phase2Budget">₩0</span></p>
+                <div class="mt-3 rounded-full overflow-hidden" style="height:6px;background:#fef3c7;">
+                  <div id="phase2Bar" style="height:100%;width:0%;background:#d97706;border-radius:999px;transition:width 0.4s;"></div>
+                </div>
+              </div>
+              <div class="text-2xl ml-3 phase-toggle-icon">▼</div>
+            </div>
+            <div class="phase-details hidden mt-4 pt-4 border-t border-slate-300" style="border-color:#fcd34d;">
+              <div id="phase2Details" class="text-xs space-y-2"></div>
+            </div>
+          </div>
+        </div>
+        <p id="budgetSaveMsg" style="margin-top:12px;font-size:0.88rem;color:#16a34a;min-height:18px;"></p>
+      </section>
+
+      <!-- 예산 항목 입력 섹션 -->
+      <section class="rounded-[32px] p-8 glass-card">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-4">
+          <div>
+            <h2 class="section-title mb-3 text-2xl font-semibold text-slate-900">예산 항목</h2>
+            <p class="text-slate-600">제작 단계를 선택하고 비용 항목과 실제 지출을 입력하세요.</p>
+          </div>
+          <button id="addItemBtn" class="btn-primary btn-small">항목 추가</button>
+        </div>
+
+        <!-- 단계 탭 -->
+        <div class="flex gap-2 mb-6 flex-wrap">
+          <button type="button" class="phase-tab" data-phase="사전제작" onclick="switchPhase('사전제작')"
+            style="padding:0.5rem 1.4rem;border-radius:999px;border:1px solid #cbd5e1;cursor:pointer;font-size:0.9rem;transition:all 0.15s;">
+            📋 사전제작
+          </button>
+          <button type="button" class="phase-tab" data-phase="제작" onclick="switchPhase('제작')"
+            style="padding:0.5rem 1.4rem;border-radius:999px;border:1px solid #cbd5e1;cursor:pointer;font-size:0.9rem;background:#f1f5f9;color:#334155;transition:all 0.15s;">
+            🎬 제작
+          </button>
+          <button type="button" class="phase-tab" data-phase="후반제작" onclick="switchPhase('후반제작')"
+            style="padding:0.5rem 1.4rem;border-radius:999px;border:1px solid #cbd5e1;cursor:pointer;font-size:0.9rem;background:#f1f5f9;color:#334155;transition:all 0.15s;">
+            ✂️ 후반제작
+          </button>
+          <span style="display:flex;align-items:center;margin-left:8px;color:#64748b;font-size:0.9rem;">
+            현재: <strong id="currentPhaseLabel" style="margin-left:4px;color:#0b2552;">사전제작</strong>
+          </span>
+        </div>
+        <div class="overflow-x-auto">
+          <table id="budgetTable" class="min-w-full text-sm">
+            <thead class="bg-slate-50 text-slate-600">
+              <tr>
+                <th>항목</th>
+                <th>예산</th>
+                <th>실제 지출</th>
+                <th>자금 출처</th>
+                <th>비고</th>
+                <th style="width: 60px;">삭제</th>
+              </tr>
+            </thead>
+            <tbody id="budgetBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 자금 출처별 예산 분석 섹션 -->
+      <section class="rounded-[32px] p-8 glass-card">
+        <h2 class="section-title mb-4 text-2xl font-semibold text-slate-900">자금 출처별 예산</h2>
+        <div class="overflow-x-auto">
+          <table id="fundingTable" class="min-w-full text-sm">
+            <thead class="bg-slate-50 text-slate-600">
+              <tr>
+                <th>자금 출처</th>
+                <th>총액</th>
+                <th>비율</th>
+              </tr>
+            </thead>
+            <tbody id="fundingBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 최종 결과 섹션 -->
+      <section class="rounded-[32px] p-8 glass-card">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+          <h2 class="section-title mb-0 text-2xl font-semibold text-slate-900">최종 예산서</h2>
+          <div class="flex gap-3">
+            <button id="previewBtn" class="btn-primary">미리보기</button>
+            <button id="downloadBtn" class="btn-secondary">PDF 다운로드</button>
+          </div>
+        </div>
+        <div id="budgetPreview" class="rounded-[28px] bg-slate-50 p-8 text-slate-700 min-h-96">
+          항목을 추가한 후 미리보기 버튼을 클릭하세요.
+        </div>
+      </section>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+    <script src="auth.js"></script>
+    <script>
+      // ===== 상수 정의 =====
+      const PHASE_BUDGET_ITEMS = {
+        '사전제작': [
+          '기획비', '시나리오 작성', '로케이션 헌팅', '캐스팅비',
+          '스태프 구성', '의상/소품 준비비', '오디션비', '사전제작 기타'
+        ],
+        '제작': [
+          '촬영 장비 (카메라, 조명)', '의상 & 소품', '출연 인건비',
+          '스태프 인건비', '장소 대여비', '식사비', '이동비',
+          '스튜디오 대여', '음향 장비', '제작 기타'
+        ],
+        '후반제작': [
+          '편집비', '색보정 (DI)', '음향 후반작업 (믹싱)', 'VFX/CG',
+          '자막/타이틀', '음악 저작권', 'DCP/마스터링', '후반제작 기타'
+        ]
+      };
+
+      const FUNDING_SOURCES = [
+        '자체 자금',
+        '외부 지원금',
+        '크라우드펀딩',
+        '후원사'
+      ];
+
+      const SAMPLE_BUDGET = {
+        '사전제작': [
+          { item: '로케이션 헌팅', estimated: 100000, actual: 80000, source: '자체 자금', remark: '' },
+          { item: '캐스팅비', estimated: 50000, actual: 50000, source: '자체 자금', remark: '' },
+        ],
+        '제작': [
+          { item: '촬영 장비 (카메라, 조명)', estimated: 1500000, actual: 1400000, source: '자체 자금', remark: '' },
+          { item: '의상 & 소품', estimated: 300000, actual: 250000, source: '자체 자금', remark: '' },
+          { item: '출연 인건비', estimated: 800000, actual: 900000, source: '외부 지원금', remark: '' },
+          { item: '장소 대여비', estimated: 400000, actual: 400000, source: '외부 지원금', remark: '' },
+          { item: '식사비', estimated: 200000, actual: 230000, source: '자체 자금', remark: '' },
+        ],
+        '후반제작': [
+          { item: '편집비', estimated: 500000, actual: 0, source: '자체 자금', remark: '' },
+          { item: '색보정 (DI)', estimated: 300000, actual: 0, source: '외부 지원금', remark: '' },
+        ]
+      };
+
+      // ===== 변수 선언 =====
+      const budgetTable = document.getElementById('budgetTable');
+      const budgetBody = document.getElementById('budgetBody');
+      const fundingTable = document.getElementById('fundingTable');
+      const fundingBody = document.getElementById('fundingBody');
+      const addItemBtn = document.getElementById('addItemBtn');
+      const previewBtn = document.getElementById('previewBtn');
+      const downloadBtn = document.getElementById('downloadBtn');
+      const budgetPreview = document.getElementById('budgetPreview');
+
+      let currentPhase = '사전제작';
+      let budgetByPhase = { '사전제작': [], '제작': [], '후반제작': [] };
+
+      // 현재 탭의 아이템 (편의 getter)
+      function getBudgetItems() { return budgetByPhase[currentPhase]; }
+      function setBudgetItems(arr) { budgetByPhase[currentPhase] = arr; }
+
+      // ===== 탭 전환 =====
+      function switchPhase(phase) {
+        const scrollY = window.scrollY;
+        currentPhase = phase;
+        document.querySelectorAll('.phase-tab').forEach(btn => {
+          const isActive = btn.dataset.phase === phase;
+          btn.style.background = isActive ? '#0b2552' : '#f1f5f9';
+          btn.style.color = isActive ? '#fff' : '#334155';
+          btn.style.fontWeight = isActive ? '700' : '500';
+        });
+        document.getElementById('currentPhaseLabel').textContent = phase;
+        renderBudgetTable();
+        updateSummary();
+        window.scrollTo(0, scrollY);
+      }
+
+      // ===== 함수 정의 =====
+      function renderBudgetTable() {
+        const items = getBudgetItems();
+        const phaseItems = PHASE_BUDGET_ITEMS[currentPhase];
+        budgetBody.innerHTML = '';
+        items.forEach((item, idx) => {
+          const row = document.createElement('tr');
+          row.className = 'border-b border-slate-200 hover:bg-slate-50';
+          row.innerHTML = `
+            <td>
+              <select class="budget-item" data-idx="${idx}">
+                ${phaseItems.map(bi => `<option value="${bi}" ${item.item === bi ? 'selected' : ''}>${bi}</option>`).join('')}
+                ${!phaseItems.includes(item.item) ? `<option value="${item.item}" selected>${item.item}</option>` : ''}
+              </select>
+            </td>
+            <td><input type="number" class="budget-estimated" data-idx="${idx}" value="${item.estimated}" min="0"></td>
+            <td><input type="number" class="budget-actual" data-idx="${idx}" value="${item.actual}" min="0"></td>
+            <td>
+              <select class="budget-source" data-idx="${idx}">
+                ${FUNDING_SOURCES.map(fs => `<option value="${fs}" ${item.source === fs ? 'selected' : ''}>${fs}</option>`).join('')}
+              </select>
+            </td>
+            <td><input type="text" class="budget-remark" data-idx="${idx}" value="${item.remark}" placeholder="비고"></td>
+            <td><button class="btn-delete btn-small" data-idx="${idx}" style="background:#fee2e2;color:#dc2626;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;">삭제</button></td>
+          `;
+          budgetBody.appendChild(row);
+        });
+
+        budgetBody.querySelectorAll('input, select').forEach(el => {
+          el.addEventListener('change', () => {
+            const items = getBudgetItems();
+            const idx = el.dataset.idx;
+            if (el.classList.contains('budget-item')) items[idx].item = el.value;
+            else if (el.classList.contains('budget-estimated')) items[idx].estimated = Number(el.value) || 0;
+            else if (el.classList.contains('budget-actual')) items[idx].actual = Number(el.value) || 0;
+            else if (el.classList.contains('budget-source')) items[idx].source = el.value;
+            else if (el.classList.contains('budget-remark')) items[idx].remark = el.value;
+            updateSummary();
+          });
+        });
+
+        budgetBody.querySelectorAll('.btn-delete').forEach(btn => {
+          btn.addEventListener('click', () => {
+            getBudgetItems().splice(Number(btn.dataset.idx), 1);
+            renderBudgetTable();
+            updateSummary();
+          });
+        });
+      }
+
+      function getAllItems() {
+        return Object.values(budgetByPhase).flat();
+      }
+
+      function updatePhaseSummary() {
+        const phases = ['사전제작', '제작', '후반제작'];
+        const ids = ['phase0', 'phase1', 'phase2'];
+        const totalAll = getAllItems().reduce((s, i) => s + (i.estimated || 0), 0);
+
+        phases.forEach((phase, pi) => {
+          const items = budgetByPhase[phase];
+          const b = items.reduce((s, i) => s + (i.estimated || 0), 0);
+          document.getElementById(`${ids[pi]}Budget`).textContent = `₩${b.toLocaleString()}`;
+          const pct = totalAll > 0 ? Math.round((b / totalAll) * 100) : 0;
+          document.getElementById(`${ids[pi]}Bar`).style.width = pct + '%';
+        });
+      }
+
+      function renderPhaseDetails() {
+        const phases = ['사전제작', '제작', '후반제작'];
+        const detailIds = ['phase0Details', 'phase1Details', 'phase2Details'];
+
+        phases.forEach((phase, index) => {
+          const container = document.getElementById(detailIds[index]);
+          if (!container) return;
+
+          const items = budgetByPhase[phase];
+          if (!items || items.length === 0) {
+            container.innerHTML = '<p class="text-sm text-slate-500">등록된 항목이 없습니다.</p>';
+            return;
+          }
+
+          container.innerHTML = items.map(item => {
+            const estimate = item.estimated ? `₩${item.estimated.toLocaleString()}` : '₩0';
+            const remark = item.remark ? `<p class="text-xs text-slate-500 mt-1">${item.remark}</p>` : '';
+            return `
+              <div class="rounded-2xl bg-white border border-slate-200 p-3 shadow-sm">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <p class="font-semibold text-slate-900">${item.item || '항목 없음'}</p>
+                    ${remark}
+                  </div>
+                  <div class="text-right text-sm">
+                    <p class="text-slate-600">예산 <span class="font-semibold text-slate-900">${estimate}</span></p>
+                  </div>
+                </div>
+              </div>`;
+          }).join('');
+        });
+      }
+
+      function attachPhaseSummaryToggle() {
+        document.querySelectorAll('.phase-summary-card').forEach(card => {
+          const details = card.querySelector('.phase-details');
+          const icon = card.querySelector('.phase-toggle-icon');
+          if (!details || !icon) return;
+
+          card.addEventListener('click', () => {
+            const isHidden = details.classList.toggle('hidden');
+            icon.textContent = isHidden ? '▼' : '▲';
+            card.style.boxShadow = isHidden ? 'none' : '0 24px 48px rgba(15,23,42,0.12)';
+          });
+        });
+      }
+
+      function updateSummary() {
+        const all = getAllItems();
+        const totalBudget = all.reduce((sum, item) => sum + (item.estimated || 0), 0);
+        const totalExpense = all.reduce((sum, item) => sum + (item.actual || 0), 0);
+        const remaining = totalBudget - totalExpense;
+        const rate = totalBudget > 0 ? Math.round((totalExpense / totalBudget) * 100) : 0;
+
+        document.getElementById('totalBudget').textContent = `₩${totalBudget.toLocaleString()}`;
+        document.getElementById('totalExpense').textContent = `₩${totalExpense.toLocaleString()}`;
+        document.getElementById('remainingBudget').textContent = `₩${remaining.toLocaleString()}`;
+        document.getElementById('usageRate').textContent = `${rate}%`;
+
+        // 지출 표시 토글 처리
+        const showExpense = document.getElementById('showExpenseToggle').checked;
+        const expenseItems = document.querySelectorAll('.expense-item');
+        expenseItems.forEach(item => {
+          item.style.display = showExpense ? 'block' : 'none';
+        });
+
+        // 그리드 레이아웃 조정
+        const grid = document.querySelector('.grid');
+        if (showExpense) {
+          grid.className = 'grid gap-4 sm:grid-cols-4';
+        } else {
+          grid.className = 'grid gap-4 sm:grid-cols-1';
+          document.getElementById('totalBudget').closest('.summary-card').classList.add('sm:col-span-1');
+        }
+
+        renderFundingTable();
+        updatePhaseSummary();
+        renderPhaseDetails();
+        checkBudgetStatus();
+      }
+
+      function renderFundingTable() {
+        fundingBody.innerHTML = '';
+        const all = getAllItems();
+        const fundingMap = {};
+        all.forEach(item => {
+          const source = item.source || '기타';
+          if (!fundingMap[source]) fundingMap[source] = 0;
+          fundingMap[source] += item.estimated || 0;
+        });
+
+        const totalBudget = all.reduce((sum, item) => sum + (item.estimated || 0), 0);
+        Object.entries(fundingMap).forEach(([source, amount]) => {
+          const ratio = totalBudget > 0 ? ((amount / totalBudget) * 100).toFixed(1) : 0;
+          const row = document.createElement('tr');
+          row.innerHTML = `<td>${source}</td><td>₩${amount.toLocaleString()}</td><td>${ratio}%</td>`;
+          fundingBody.appendChild(row);
+        });
+      }
+
+      addItemBtn.addEventListener('click', () => {
+        const phaseItems = PHASE_BUDGET_ITEMS[currentPhase];
+        getBudgetItems().push({ item: phaseItems[0], estimated: 0, actual: 0, source: FUNDING_SOURCES[0], remark: '' });
+        renderBudgetTable();
+      });
+
+      // 지출 표시 토글 이벤트
+      document.getElementById('showExpenseToggle').addEventListener('change', updateSummary);
+
+      previewBtn.addEventListener('click', () => {
+        const all = getAllItems();
+        if (all.length === 0) { alert('항목을 추가해주세요.'); return; }
+
+        const phases = ['사전제작', '제작', '후반제작'];
+        const grandTotal = all.reduce((s, i) => s + (i.estimated || 0), 0);
+        const grandActual = all.reduce((s, i) => s + (i.actual || 0), 0);
+
+        const thStyle = 'border:1px solid #bbb;padding:9px 12px;background:#0b2552;color:#fff;font-size:13px;';
+        const tdStyle = (extra) => `border:1px solid #ddd;padding:8px 11px;font-size:13px;${extra || ''}`;
+
+        let html = `<div style="font-family:'Malgun Gothic',Arial,sans-serif;color:#111;padding:8px;">`;
+        html += `<div style="text-align:center;margin-bottom:18px;">
+          <h2 style="font-size:22px;font-weight:900;letter-spacing:2px;margin:0 0 4px;">촬영 예산서</h2>
+          <p style="color:#555;font-size:13px;margin:0;">작성일: ${new Date().toLocaleDateString('ko-KR')}</p>
+        </div>`;
+
+        // 전체 요약
+        html += `<div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+          <div style="background:#f0f4ff;border:1px solid #c7d4f7;border-radius:8px;padding:10px 18px;">
+            <div style="font-size:11px;color:#555;margin-bottom:2px;">총 예산</div>
+            <div style="font-size:18px;font-weight:700;color:#0b2552;">₩${grandTotal.toLocaleString()}</div>
+          </div>
+          <div style="background:#fff0f0;border:1px solid #fca5a5;border-radius:8px;padding:10px 18px;">
+            <div style="font-size:11px;color:#555;margin-bottom:2px;">총 지출</div>
+            <div style="font-size:18px;font-weight:700;color:#dc2626;">₩${grandActual.toLocaleString()}</div>
+          </div>
+          <div style="background:#f0fff4;border:1px solid #86efac;border-radius:8px;padding:10px 18px;">
+            <div style="font-size:11px;color:#555;margin-bottom:2px;">잔여 예산</div>
+            <div style="font-size:18px;font-weight:700;color:#16a34a;">₩${(grandTotal - grandActual).toLocaleString()}</div>
+          </div>
+        </div>`;
+
+        // 단계별 테이블
+        phases.forEach(phase => {
+          const items = budgetByPhase[phase];
+          if (items.length === 0) return;
+          const phaseTotal = items.reduce((s, i) => s + (i.estimated || 0), 0);
+          const phaseActual = items.reduce((s, i) => s + (i.actual || 0), 0);
+
+          html += `<div style="margin-bottom:22px;">
+            <div style="background:#0b2552;color:#fff;padding:8px 14px;border-radius:8px 8px 0 0;display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:14px;font-weight:700;">${phase}</span>
+              <span style="font-size:12px;opacity:0.85;">예산 ₩${phaseTotal.toLocaleString()} / 지출 ₩${phaseActual.toLocaleString()}</span>
+            </div>
+            <table style="width:100%;border-collapse:collapse;">
+              <thead><tr>
+                <th style="${thStyle}">항목</th>
+                <th style="${thStyle}text-align:right;">예산(₩)</th>
+                <th style="${thStyle}text-align:right;">지출(₩)</th>
+                <th style="${thStyle}text-align:center;">차액</th>
+                <th style="${thStyle}text-align:center;">자금 출처</th>
+                <th style="${thStyle}">비고</th>
+              </tr></thead><tbody>`;
+
+          items.forEach((item, i) => {
+            const diff = (item.estimated || 0) - (item.actual || 0);
+            const diffColor = diff >= 0 ? '#16a34a' : '#dc2626';
+            const bg = i % 2 === 0 ? '' : 'background:#f8fafc;';
+            html += `<tr style="${bg}">
+              <td style="${tdStyle()}">${item.item}</td>
+              <td style="${tdStyle('text-align:right;')}">${(item.estimated || 0).toLocaleString()}</td>
+              <td style="${tdStyle('text-align:right;')}">${(item.actual || 0).toLocaleString()}</td>
+              <td style="${tdStyle('text-align:center;color:' + diffColor + ';font-weight:600;')}">${diff >= 0 ? '+' : ''}${diff.toLocaleString()}</td>
+              <td style="${tdStyle('text-align:center;')}">${item.source}</td>
+              <td style="${tdStyle('color:#64748b;')}">${item.remark || ''}</td>
+            </tr>`;
+          });
+
+          html += `<tr style="background:#f1f5f9;font-weight:700;">
+            <td style="${tdStyle()}">소계</td>
+            <td style="${tdStyle('text-align:right;')}">₩${phaseTotal.toLocaleString()}</td>
+            <td style="${tdStyle('text-align:right;')}">₩${phaseActual.toLocaleString()}</td>
+            <td style="${tdStyle('text-align:center;')}">-</td>
+            <td style="${tdStyle('text-align:center;')}">-</td>
+            <td style="${tdStyle()}"></td>
+          </tr>`;
+          html += `</tbody></table></div>`;
+        });
+
+        // 최종 합계
+        html += `<div style="background:#0b2552;color:#fff;border-radius:8px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+          <span style="font-size:15px;font-weight:700;">최종 합계</span>
+          <span style="font-size:14px;">예산 ₩${grandTotal.toLocaleString()} &nbsp;|&nbsp; 지출 ₩${grandActual.toLocaleString()} &nbsp;|&nbsp; 잔여 ₩${(grandTotal-grandActual).toLocaleString()}</span>
+        </div>`;
+        html += '</div>';
+        budgetPreview.innerHTML = html;
+      });
+
+      downloadBtn.addEventListener('click', () => {
+        const all = getAllItems();
+        if (all.length === 0) { alert('항목을 추가해주세요.'); return; }
+        html2pdf().set({ margin: 10, filename: '촬영_예산서.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(budgetPreview).save();
+      });
+
+      document.getElementById('downloadPhaseBtn').addEventListener('click', () => {
+        const all = getAllItems();
+        if (all.length === 0) { alert('항목을 추가해주세요.'); return; }
+
+        const phases = ['사전제작', '제작', '후반제작'];
+        const phaseEmoji = { '사전제작': '📋', '제작': '🎬', '후반제작': '✂️' };
+        const phaseColors = {
+          '사전제작': { bg: '#f0f4ff', border: '#c7d4f7', text: '#0b2552' },
+          '제작': { bg: '#f0fff4', border: '#86efac', text: '#166534' },
+          '후반제작': { bg: '#fef9f0', border: '#fcd34d', text: '#92400e' }
+        };
+
+        let html = `<div style="font-family:'Malgun Gothic',Arial,sans-serif;color:#111;padding:16px;">`;
+        html += `<div style="text-align:center;margin-bottom:20px;">
+          <h2 style="font-size:24px;font-weight:900;letter-spacing:1px;margin:0 0 6px;">단계별 예산</h2>
+          <p style="color:#555;font-size:13px;margin:0;">작성일: ${new Date().toLocaleDateString('ko-KR')}</p>
+        </div>`;
+
+        phases.forEach(phase => {
+          const color = phaseColors[phase];
+          const items = budgetByPhase[phase];
+          const phaseBudget = items.reduce((s, i) => s + (i.estimated || 0), 0);
+
+          html += `<div style="background:${color.bg};border:2px solid ${color.border};border-radius:12px;padding:14px;margin-bottom:16px;">
+            <div style="display:flex;align-items:center;margin-bottom:12px;">
+              <span style="font-size:28px;margin-right:10px;">${phaseEmoji[phase]}</span>
+              <div>
+                <h3 style="font-size:18px;font-weight:700;color:${color.text};margin:0;">${phase}</h3>
+                <p style="font-size:14px;font-weight:700;color:${color.text};margin:4px 0 0 0;">예산: ₩${phaseBudget.toLocaleString()}</p>
+              </div>
+            </div>`;
+
+          if (items && items.length > 0) {
+            html += `<div style="border-top:1px solid ${color.border};padding-top:12px;">`;
+            items.forEach((item, idx) => {
+              const itemBudget = item.estimated ? `₩${item.estimated.toLocaleString()}` : '₩0';
+              html += `<div style="display:flex;justify-content:space-between;padding:8px 0;font-size:13px;border-bottom:1px solid #e5e7eb;">
+                <span style="color:#333;">${idx + 1}. ${item.item || '항목 없음'}</span>
+                <span style="font-weight:600;color:${color.text};">${itemBudget}</span>
+              </div>`;
+            });
+            html += `</div>`;
+          }
+
+          html += `</div>`;
+        });
+
+        html += `</div>`;
+
+        const container = document.createElement('div');
+        container.innerHTML = html;
+        html2pdf().set({ margin: 10, filename: '단계별_예산.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(container).save();
+      });
+
+      // ===== 멀티슬롯 저장 / 불러오기 =====
+      const BUDGET_STORAGE_KEY = 'budgetProjects';
+
+      function getAllBudgetProjects() {
+        try { return JSON.parse(localStorage.getItem(BUDGET_STORAGE_KEY)) || []; }
+        catch { return []; }
+      }
+
+      function saveAllBudgetProjects(projects) {
+        localStorage.setItem(BUDGET_STORAGE_KEY, JSON.stringify(projects));
+      }
+
+      function gatherBudgetData() {
+        return {
+          budgetByPhase,
+          totalBudgetCap: parseInt(document.getElementById('totalBudgetInput').value) || 0
+        };
+      }
+
+      function applyBudgetData(data) {
+        if (data.budgetByPhase) budgetByPhase = data.budgetByPhase;
+        if (data.totalBudgetCap) document.getElementById('totalBudgetInput').value = data.totalBudgetCap;
+        switchPhase('사전제작');
+        checkBudgetStatus();
+      }
+
+      // nav 저장 버튼
+      document.getElementById('saveBudgetNavBtn').addEventListener('click', () => {
+        const projects = getAllBudgetProjects();
+        const defaultName = '예산서 — ' + new Date().toLocaleString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        const name = prompt('저장 이름을 입력하세요:', defaultName);
+        if (name === null) return;
+        projects.unshift({ id: Date.now(), name: name.trim() || defaultName, savedAt: new Date().toISOString(), data: gatherBudgetData() });
+        saveAllBudgetProjects(projects);
+        alert(`"${name.trim() || defaultName}"(으)로 저장되었습니다!`);
+      });
+
+      // nav 불러오기 버튼
+      const budgetLoadModal = document.getElementById('budgetLoadModal');
+      const budgetLoadModalList = document.getElementById('budgetLoadModalList');
+
+      function openBudgetLoadModal() {
+        const projects = getAllBudgetProjects();
+        budgetLoadModalList.innerHTML = '';
+
+        if (projects.length === 0) {
+          budgetLoadModalList.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:24px 0;">저장된 예산서가 없습니다.</p>';
+        } else {
+          projects.forEach((proj, idx) => {
+            const savedDate = new Date(proj.savedAt).toLocaleString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            const item = document.createElement('div');
+            item.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border:1px solid #e2e8f0;border-radius:14px;background:#f8fafc;';
+            item.innerHTML = `
+              <div style="flex:1;min-width:0;">
+                <div style="font-weight:700;color:#0f172a;font-size:0.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${proj.name}</div>
+                <div style="font-size:0.78rem;color:#94a3b8;margin-top:2px;">${savedDate}</div>
+              </div>
+              <div style="display:flex;gap:8px;flex-shrink:0;">
+                <button data-idx="${idx}" class="budget-load-select" style="background:#0b2552;color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:0.85rem;font-weight:600;cursor:pointer;">불러오기</button>
+                <button data-idx="${idx}" class="budget-load-delete" style="background:#fee2e2;color:#dc2626;border:none;border-radius:8px;padding:6px 10px;font-size:0.85rem;cursor:pointer;">삭제</button>
+              </div>`;
+            budgetLoadModalList.appendChild(item);
+          });
+
+          budgetLoadModalList.querySelectorAll('.budget-load-select').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const proj = getAllBudgetProjects()[Number(btn.dataset.idx)];
+              if (!proj) return;
+              if (!confirm(`"${proj.name}"을(를) 불러올까요? 현재 작업이 사라집니다.`)) return;
+              applyBudgetData(proj.data);
+              budgetLoadModal.style.display = 'none';
+              alert(`"${proj.name}" 불러오기 완료!`);
+            });
+          });
+
+          budgetLoadModalList.querySelectorAll('.budget-load-delete').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const projects = getAllBudgetProjects();
+              if (!confirm(`"${projects[Number(btn.dataset.idx)].name}"을(를) 삭제할까요?`)) return;
+              projects.splice(Number(btn.dataset.idx), 1);
+              saveAllBudgetProjects(projects);
+              openBudgetLoadModal();
+            });
+          });
+        }
+        budgetLoadModal.style.display = 'flex';
+      }
+
+      document.getElementById('loadBudgetNavBtn').addEventListener('click', openBudgetLoadModal);
+      document.getElementById('budgetLoadModalClose').addEventListener('click', () => { budgetLoadModal.style.display = 'none'; });
+      budgetLoadModal.addEventListener('click', e => { if (e.target === budgetLoadModal) budgetLoadModal.style.display = 'none'; });
+
+      // 기존 단일 저장 함수 (페이지 내 💾 버튼용 유지)
+      function saveTotalBudget() {
+        const totalBudgetInput = document.getElementById('totalBudgetInput');
+        const inputValue = parseInt(totalBudgetInput.value) || 0;
+        if (inputValue <= 0) { alert('0보다 큰 예산을 설정해주세요.'); return; }
+        Auth.saveData('totalBudgetCap', inputValue);
+        updateSummary();
+        const msg = document.getElementById('budgetSaveMsg');
+        msg.textContent = `✅ 전체 예산 저장 완료 — ${new Date().toLocaleTimeString('ko-KR')}`;
+        setTimeout(() => { msg.textContent = ''; }, 3000);
+      }
+
+      function loadTotalBudget() {
+        const saved = Auth.loadData('totalBudgetCap');
+        if (saved) document.getElementById('totalBudgetInput').value = saved;
+      }
+
+      function checkBudgetStatus() {
+        const totalBudgetInput = document.getElementById('totalBudgetInput');
+        const setTotalBudget = parseInt(totalBudgetInput.value) || 0;
+        
+        const all = getAllItems();
+        const totalExpense = all.reduce((sum, item) => sum + (item.actual || 0), 0);
+        
+        const alertDiv = document.getElementById('budgetAlert');
+        const suggestionDiv = document.getElementById('budgetSuggestion');
+        
+        // 초기화
+        alertDiv.classList.add('hidden');
+        suggestionDiv.classList.add('hidden');
+        
+        if (setTotalBudget === 0) return; // 설정되지 않음
+        
+        const overspent = totalExpense - setTotalBudget;
+        const underspent = setTotalBudget - totalExpense;
+        
+        if (overspent > 0) {
+          // 예산 초과
+          alertDiv.classList.remove('hidden');
+          document.getElementById('budgetAlertText').textContent = `⚠️ 예산 초과! ₩${overspent.toLocaleString()} 초과했습니다`;
+          document.getElementById('budgetAlertDetail').textContent = `설정 예산: ₩${setTotalBudget.toLocaleString()} / 현재 지출: ₩${totalExpense.toLocaleString()}`;
+        } else if (underspent > 0) {
+          // 예산 미달
+          suggestionDiv.classList.remove('hidden');
+          document.getElementById('budgetSuggestionText').textContent = `💡 아직 ₩${underspent.toLocaleString()} 를 더 사용할 수 있습니다`;
+          document.getElementById('budgetSuggestionDetail').textContent = `설정 예산: ₩${setTotalBudget.toLocaleString()} / 현재 지출: ₩${totalExpense.toLocaleString()}`;
+        }
+      }
+
+      function saveBudgetData() {
+        if (!Auth.getCurrentUser()) {
+          alert('로그인 후 저장할 수 있습니다.');
+          Auth._openModal();
+          return;
+        }
+        Auth.saveData('budget', budgetByPhase);
+        const msg = document.getElementById('budgetSaveMsg');
+        msg.textContent = `✅ 저장 완료 — ${new Date().toLocaleTimeString('ko-KR')}`;
+        setTimeout(() => { msg.textContent = ''; }, 3000);
+      }
+
+      function loadBudgetData() {
+        const saved = Auth.loadData('budget');
+        if (saved) {
+          budgetByPhase = saved;
+        } else {
+          budgetByPhase = {
+            '사전제작': [...SAMPLE_BUDGET['사전제작']],
+            '제작': [...SAMPLE_BUDGET['제작']],
+            '후반제작': [...SAMPLE_BUDGET['후반제작']]
+          };
+        }
+        switchPhase('사전제작');
+        loadTotalBudget();
+      }
+
+      document.getElementById('saveBudgetBtn').addEventListener('click', saveBudgetData);
+      document.getElementById('saveTotalBudgetBtn').addEventListener('click', saveTotalBudget);
+
+      // 초기화 공통 함수
+      function doResetBudget() {
+        if (!confirm('모든 예산 항목을 초기화할까요?\n입력한 내용이 모두 사라집니다.')) return;
+        budgetByPhase = {
+          '사전제작': [],
+          '제작': [],
+          '후반제작': []
+        };
+        document.getElementById('totalBudgetInput').value = '';
+        switchPhase('사전제작');
+        updateSummary();
+        checkBudgetStatus();
+        const msg = document.getElementById('budgetSaveMsg');
+        msg.textContent = '🗑 초기화 완료';
+        msg.style.color = '#dc2626';
+        setTimeout(() => { msg.textContent = ''; msg.style.color = '#16a34a'; }, 3000);
+      }
+      document.getElementById('resetBudgetBtn').addEventListener('click', doResetBudget);
+      document.getElementById('resetBudgetNavBtn').addEventListener('click', doResetBudget);
+      
+      // 전체 예산 입력 필드 실시간 감지
+      document.getElementById('totalBudgetInput').addEventListener('input', () => {
+        const inputValue = parseInt(document.getElementById('totalBudgetInput').value) || 0;
+        if (inputValue > 0 && Auth.getCurrentUser()) {
+          Auth.saveData('totalBudgetCap', inputValue);
+        }
+        checkBudgetStatus();
+      });
+      
+      attachPhaseSummaryToggle();
+
+      // ===== 초기 로드 =====
+      window.addEventListener('load', () => {
+        initAuth(loadBudgetData);
+        loadBudgetData();
+      });
+    </script>
+
+  </body>
+</html>

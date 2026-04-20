@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIGO BABO | 단편영화 일일촬영계획표</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      html { scroll-behavior: smooth; }
+      body { background: #f8fafc; color: #0f172a; margin: 0; font-family: 'Malgun Gothic', -apple-system, sans-serif; }
+      .btn-primary {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: #fff; color: #0b2552;
+        padding: 0.85rem 2rem; border-radius: 999px;
+        font-weight: 700; font-size: 0.95rem;
+        transition: transform 0.18s, box-shadow 0.18s;
+        text-decoration: none; border: none; cursor: pointer;
+      }
+      .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.18); }
+      .btn-outline {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: transparent; color: #fff;
+        padding: 0.85rem 2rem; border-radius: 999px;
+        font-weight: 700; font-size: 0.95rem;
+        transition: transform 0.18s, background 0.18s;
+        text-decoration: none; border: 1.5px solid rgba(255,255,255,0.5); cursor: pointer;
+      }
+      .btn-outline:hover { transform: translateY(-2px); background: rgba(255,255,255,0.1); }
+      .nav-link { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.9rem; transition: color 0.15s; }
+      .nav-link:hover { color: #fff; }
+      .card { background: #fff; border-radius: 20px; padding: 28px; border: 1px solid #e2e8f0; transition: box-shadow 0.2s, transform 0.2s; }
+      .card:hover { box-shadow: 0 12px 32px rgba(11,37,82,0.1); transform: translateY(-3px); }
+      .icon-box { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 16px; }
+      .badge { display: inline-block; background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 999px; padding: 0.35rem 1rem; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.03em; }
+      .notice-card { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 16px; padding: 20px 24px; display: flex; gap: 14px; align-items: flex-start; }
+      .section-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #64748b; margin-bottom: 8px; }
+    </style>
+  </head>
+  <body>
+
+    <!-- ===== 상단 네비게이션 ===== -->
+    <header style="background:#0b2552;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,0.18);">
+      <div style="max-width:1200px;margin:0 auto;padding:0 36px;display:flex;align-items:center;justify-content:space-between;height:72px;gap:24px;">
+        <a href="index.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
+          <div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#38bdf8,#6366f1);flex-shrink:0;"></div>
+          <span style="color:#fff;font-weight:800;font-size:1rem;letter-spacing:0.01em;">SIGO BABO</span>
+        </a>
+        <nav style="display:flex;align-items:center;gap:28px;">
+          <a href="index.html" class="nav-link" style="color:#fff;">홈</a>
+          <a href="planner.html" class="nav-link">촬영 계획표</a>
+          <a href="budget.html" class="nav-link">예산서</a>
+        </nav>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <button id="navLoginBtn" onclick="Auth._openModal()" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:999px;padding:0.45rem 1.1rem;font-size:0.85rem;font-weight:600;cursor:pointer;transition:background 0.15s;">로그인</button>
+          <div id="navUserArea" style="display:none;align-items:center;gap:8px;">
+            <span id="navUserLabel" style="color:rgba(255,255,255,0.8);font-size:0.85rem;"></span>
+            <button onclick="Auth._logoutAndReload()" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:999px;padding:0.45rem 1.1rem;font-size:0.85rem;cursor:pointer;">로그아웃</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ===== 히어로 섹션 ===== -->
+    <section style="background:#050d1f;padding:80px 24px 90px;text-align:center;">
+      <div style="max-width:680px;margin:0 auto;">
+        <span class="badge">단편영화 현장 필수 도구</span>
+        <h1 style="color:#fff;font-size:clamp(2.2rem,5vw,3.2rem);font-weight:900;line-height:1.2;margin:24px 0 18px;letter-spacing:-0.02em;">
+          단편영화 일촬표,<br>한 번에 작성하세요
+        </h1>
+        <p style="color:rgba(255,255,255,0.65);font-size:1rem;line-height:1.7;margin-bottom:36px;max-width:480px;margin-left:auto;margin-right:auto;">
+          시나리오 분석부터 스탭 콜시간 관리, PDF 출력까지<br>촬영 현장에 필요한 모든 것을 한 곳에서.
+        </p>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+          <a href="planner.html" class="btn-primary">촬영 계획표 작성하기 →</a>
+          <a href="budget.html" class="btn-outline">예산서 작성</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 본문 ===== -->
+    <main style="max-width:1100px;margin:0 auto;padding:64px 24px 40px;">
+
+      <!-- 주요 기능 -->
+      <div style="margin-bottom:56px;">
+        <p class="section-label">주요 기능</p>
+        <h2 style="font-size:1.6rem;font-weight:800;color:#0f172a;margin:0 0 32px;">촬영 계획부터 예산까지 한 번에</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;">
+          <div class="card">
+            <div class="icon-box" style="background:#eff6ff;">📄</div>
+            <h3 style="font-size:1.1rem;font-weight:700;color:#0f172a;margin:0 0 10px;">시나리오 자동 분석</h3>
+            <p style="color:#64748b;font-size:0.9rem;line-height:1.6;margin:0;">PDF·DOCX·HWP·TXT 업로드만으로 씬·장소·등장인물을 자동 추출합니다.</p>
+          </div>
+          <div class="card">
+            <div class="icon-box" style="background:#f0fdf4;">🎬</div>
+            <h3 style="font-size:1.1rem;font-weight:700;color:#0f172a;margin:0 0 10px;">일촬표 단계별 작성</h3>
+            <p style="color:#64748b;font-size:0.9rem;line-height:1.6;margin:0;">씬 배정 → 로케이션 → 스탭 콜시간 → 최종 PDF 출력까지 단계별로 안내합니다.</p>
+          </div>
+          <div class="card">
+            <div class="icon-box" style="background:#fdf4ff;">👥</div>
+            <h3 style="font-size:1.1rem;font-weight:700;color:#0f172a;margin:0 0 10px;">스탭 & 배우 관리</h3>
+            <p style="color:#64748b;font-size:0.9rem;line-height:1.6;margin:0;">부서별 콜시간, 배우 콜시간을 날짜별로 개별 입력하고 PDF에 자동 반영합니다.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 사용 안내 -->
+      <div style="margin-bottom:56px;">
+        <p class="section-label">사용 안내</p>
+        <h2 style="font-size:1.6rem;font-weight:800;color:#0f172a;margin:0 0 12px;">이렇게 사용하세요</h2>
+        <p style="color:#64748b;font-size:0.9rem;margin:0 0 32px;">촬영 기간을 선택해야 다음 단계로 진행할 수 있습니다.</p>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-bottom:24px;">
+          <div class="card" style="border-top:3px solid #0b2552;">
+            <p style="font-size:0.75rem;font-weight:700;color:#0b2552;letter-spacing:0.08em;margin:0 0 10px;">STEP 1</p>
+            <h3 style="font-size:1rem;font-weight:700;color:#0f172a;margin:0 0 8px;">영화 정보 입력</h3>
+            <p style="color:#64748b;font-size:0.85rem;line-height:1.6;margin:0;">제목, 감독, 프로듀서, <strong>촬영 일정</strong>을 선택하세요.</p>
+          </div>
+          <div class="card" style="border-top:3px solid #0b2552;">
+            <p style="font-size:0.75rem;font-weight:700;color:#0b2552;letter-spacing:0.08em;margin:0 0 10px;">STEP 2</p>
+            <h3 style="font-size:1rem;font-weight:700;color:#0f172a;margin:0 0 8px;">시나리오 분석</h3>
+            <p style="color:#64748b;font-size:0.85rem;line-height:1.6;margin:0;">파일 업로드 또는 직접 입력 후 분석 버튼을 누르세요.</p>
+          </div>
+          <div class="card" style="border-top:3px solid #0b2552;">
+            <p style="font-size:0.75rem;font-weight:700;color:#0b2552;letter-spacing:0.08em;margin:0 0 10px;">STEP 3</p>
+            <h3 style="font-size:1rem;font-weight:700;color:#0f172a;margin:0 0 8px;">씬 & 스탭 배정</h3>
+            <p style="color:#64748b;font-size:0.85rem;line-height:1.6;margin:0;">씬별 날짜를 배정하고 스탭·배우 콜시간을 입력합니다.</p>
+          </div>
+          <div class="card" style="border-top:3px solid #0b2552;">
+            <p style="font-size:0.75rem;font-weight:700;color:#0b2552;letter-spacing:0.08em;margin:0 0 10px;">STEP 4</p>
+            <h3 style="font-size:1rem;font-weight:700;color:#0f172a;margin:0 0 8px;">PDF 출력</h3>
+            <p style="color:#64748b;font-size:0.85rem;line-height:1.6;margin:0;">최종 통합본을 미리보고 PDF로 저장해 팀과 공유하세요.</p>
+          </div>
+        </div>
+
+        <!-- 안내 카드 -->
+        <div class="notice-card">
+          <span style="font-size:1.4rem;flex-shrink:0;">⚠️</span>
+          <div>
+            <p style="font-weight:700;color:#92400e;margin:0 0 4px;font-size:0.9rem;">촬영 기간 선택 필수</p>
+            <p style="color:#78350f;font-size:0.85rem;line-height:1.6;margin:0;">
+              1단계에서 <strong>촬영 기간</strong>을 먼저 선택해야 다음 단계로 넘어갈 수 있습니다. 날짜를 여러 개 선택하면 각 날짜별로 씬을 배정할 수 있어요.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 예상 시간 안내 -->
+      <div style="background:#0b2552;border-radius:24px;padding:40px 36px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:24px;margin-bottom:0;">
+        <div>
+          <p style="color:rgba(255,255,255,0.6);font-size:0.8rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin:0 0 10px;">예상 시간 자동 계산</p>
+          <h2 style="color:#fff;font-size:1.5rem;font-weight:800;margin:0 0 10px;">컷 수 × 15분으로<br>씬별 시간을 자동 산출</h2>
+          <p style="color:rgba(255,255,255,0.6);font-size:0.9rem;line-height:1.6;margin:0;max-width:420px;">씬 리스트에서 컷 수를 입력하면 예상 촬영 시간이 자동으로 계산되고 일촬표에 반영됩니다.</p>
+        </div>
+        <a href="planner.html" class="btn-primary" style="flex-shrink:0;">지금 시작하기 →</a>
+      </div>
+
+    </main>
+
+    <script src="auth.js"></script>
+    <script>
+      window.addEventListener('load', () => initAuth(null));
+    </script>
+
+    <footer style="background:#0b2552;color:#fff;margin-top:80px;padding:40px 32px 28px;">
+      <div style="max-width:1200px;margin:0 auto;text-align:center;">
+        <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:16px;">
+          <div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#38bdf8,#6366f1);flex-shrink:0;"></div>
+          <span style="font-size:1.1rem;font-weight:800;letter-spacing:0.04em;">SIGO BABO</span>
+        </div>
+        <p style="font-size:0.85rem;color:rgba(255,255,255,0.65);line-height:2;margin:0 0 6px;">
+          문의: <a href="tel:01045256577" style="color:#93c5fd;text-decoration:none;">010-4525-6577</a>
+          &nbsp;/&nbsp;
+          <a href="mailto:sinmj6577@naver.com" style="color:#93c5fd;text-decoration:none;">sinmj6577@naver.com</a>
+          &nbsp;&nbsp;|&nbsp;&nbsp;
+          문의 가능 시간: 평일 10:00 – 17:00 (점심시간 12:00 – 13:00)
+        </p>
+        <p style="font-size:0.78rem;color:rgba(255,255,255,0.35);margin:0;">© SIGO BABO 영화 일촬표 제작 시스템</p>
+      </div>
+    </footer>
+  </body>
+</html>
