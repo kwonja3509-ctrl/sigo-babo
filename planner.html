@@ -204,7 +204,10 @@
               <h2 class="section-title mb-3 text-2xl font-semibold text-slate-900">스탭 리스트</h2>
               <p class="text-slate-600">촬영에 참여하는 스탭과 배우 정보를 입력하세요. 콜타임 설정 시 이 목록이 사용됩니다.</p>
             </div>
-            <button id="addStaffBtn" class="btn-primary">스탭 추가</button>
+            <div class="flex gap-2">
+              <button id="downloadStaffListBtn" class="btn-secondary btn-small">스탭 리스트 PDF</button>
+              <button id="addStaffBtn" class="btn-primary">스탭 추가</button>
+            </div>
           </div>
           <div class="overflow-x-auto">
             <table id="staffTable" class="min-w-full text-sm">
@@ -2072,6 +2075,77 @@ S#7 버스정류장 앞 / 오후
         const tempElement = document.createElement('div');
         tempElement.innerHTML = html;
         html2pdf().set({ margin: 10, filename: '씬_리스트.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } }).from(tempElement).save();
+      });
+
+      // ===== 스탭 리스트 PDF 다운로드 =====
+      document.getElementById('downloadStaffListBtn').addEventListener('click', () => {
+        if (staff.length === 0) { alert('스탭 정보를 먼저 입력하세요.'); return; }
+
+        const thStyle = 'border:1px solid #ddd;padding:6px 8px;background:#0b2552;color:#fff;text-align:center;font-size:11px;';
+        const tdStyle = (align='center') => `border:1px solid #ddd;padding:5px 8px;text-align:${align};font-size:11px;`;
+
+        const staffMembers = staff.filter(m => m.type === '스탭');
+        const actorMembers = staff.filter(m => m.type === '배우');
+
+        let html = '<div style="font-family:\'Malgun Gothic\',Arial,sans-serif;color:#333;padding:4px;">';
+        html += '<h2 style="border-bottom:3px solid #0b2552;padding-bottom:8px;margin-bottom:12px;font-size:16px;">스탭 리스트</h2>';
+        html += '<p style="color:#666;margin-bottom:16px;font-size:12px;">작성일: ' + new Date().toLocaleDateString('ko-KR') + '</p>';
+
+        // 스탭 섹션
+        if (staffMembers.length > 0) {
+          html += '<h3 style="font-size:13px;font-weight:700;margin-bottom:8px;color:#0b2552;">■ 스탭</h3>';
+          html += '<table style="width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:20px;">';
+          html += '<colgroup><col style="width:14%"><col style="width:16%"><col style="width:20%"><col style="width:30%"></colgroup>';
+          html += `<thead><tr>
+            <th style="${thStyle}">구분</th>
+            <th style="${thStyle}">부서/역할</th>
+            <th style="${thStyle}">이름</th>
+            <th style="${thStyle}">연락처</th>
+            <th style="${thStyle}">비고</th>
+          </tr></thead><tbody>`;
+          staffMembers.forEach((m, i) => {
+            const bg = i % 2 === 0 ? '#fff' : '#f8fafc';
+            html += `<tr style="background:${bg};">
+              <td style="${tdStyle()}">${m.type}</td>
+              <td style="${tdStyle()}">${m.role || ''}</td>
+              <td style="${tdStyle()}">${m.name || ''}</td>
+              <td style="${tdStyle()}">${m.phone || ''}</td>
+              <td style="${tdStyle('left')}">${m.notes || ''}</td>
+            </tr>`;
+          });
+          html += '</tbody></table>';
+        }
+
+        // 배우 섹션
+        if (actorMembers.length > 0) {
+          html += '<h3 style="font-size:13px;font-weight:700;margin-bottom:8px;color:#0b2552;">■ 배우</h3>';
+          html += '<table style="width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:20px;">';
+          html += '<colgroup><col style="width:14%"><col style="width:18%"><col style="width:18%"><col style="width:20%"><col style="width:30%"></colgroup>';
+          html += `<thead><tr>
+            <th style="${thStyle}">구분</th>
+            <th style="${thStyle}">이름</th>
+            <th style="${thStyle}">캐릭터명</th>
+            <th style="${thStyle}">연락처</th>
+            <th style="${thStyle}">비고</th>
+          </tr></thead><tbody>`;
+          actorMembers.forEach((m, i) => {
+            const bg = i % 2 === 0 ? '#fff' : '#f8fafc';
+            html += `<tr style="background:${bg};">
+              <td style="${tdStyle()}">${m.type}</td>
+              <td style="${tdStyle()}">${m.name || ''}</td>
+              <td style="${tdStyle()}">${m.character || ''}</td>
+              <td style="${tdStyle()}">${m.phone || ''}</td>
+              <td style="${tdStyle('left')}">${m.notes || ''}</td>
+            </tr>`;
+          });
+          html += '</tbody></table>';
+        }
+
+        html += '</div>';
+
+        const tempElement = document.createElement('div');
+        tempElement.innerHTML = html;
+        html2pdf().set({ margin: 12, filename: '스탭_리스트.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(tempElement).save();
       });
 
       // ===== 촬영 기간 멀티 날짜 캘린더 =====
