@@ -29,11 +29,11 @@
       .text-muted { color: #64748b; }
       .flatpickr-input { background: #f8fafc !important; }
       .overflow-x-auto { overflow-x: auto; }
-      .nav-link { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.9rem; transition: color 0.15s; }
-      .nav-link:hover, .nav-link.active { color: #fff; }
+      .nav-link { color: rgba(15,23,42,0.65); text-decoration: none; font-size: 0.9rem; transition: color 0.15s; }
+      .nav-link:hover, .nav-link.active { color: #0f172a; }
       .step-indicator { cursor: pointer; border: none; transition: background 0.15s, color 0.15s; }
       .nav-inner { max-width:1280px; margin:0 auto; padding:0 36px; display:flex; align-items:center; justify-content:space-between; height:72px; gap:16px; }
-      .nav-logo-text { color:#fff; font-weight:800; font-size:0.95rem; letter-spacing:0.01em; }
+      .nav-logo-text { color:#1a1a1a; font-weight:800; font-size:0.95rem; letter-spacing:0.01em; }
       .nav-links { display:flex; align-items:center; gap:24px; }
       .nav-actions { display:flex; align-items:center; gap:6px; flex-shrink:0; }
       @media (max-width: 640px) {
@@ -49,7 +49,7 @@
   <body class="min-h-screen">
 
     <!-- 네비게이션 -->
-    <header style="background:#0b2552;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,0.18);">
+    <header style="background:#FFF9F0;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
       <div class="nav-inner">
         <a href="index.html" style="display:flex;align-items:center;gap:8px;text-decoration:none;flex-shrink:0;">
           <img src="logo.png" alt="SIGO BABO" style="height:50px;width:auto;object-fit:contain;">
@@ -57,12 +57,12 @@
         </a>
         <nav class="nav-links">
           <a href="index.html" class="nav-link">홈</a>
-          <a href="planner.html" class="nav-link active" style="color:#fff;font-weight:600;">촬영 계획표</a>
+          <a href="planner.html" class="nav-link active" style="color:#0f172a;font-weight:600;">촬영 계획표</a>
           <a href="budget.html" class="nav-link">예산서</a>
         </nav>
         <div class="nav-actions">
-          <button id="saveProjectBtn" class="nav-btn" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:999px;padding:0.4rem 0.8rem;font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap;">💾 <span class="nav-btn-label">저장</span></button>
-          <button id="loadProjectBtn" class="nav-btn" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:999px;padding:0.4rem 0.8rem;font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap;">📂 <span class="nav-btn-label">불러오기</span></button>
+          <button id="saveProjectBtn" class="nav-btn" style="background:rgba(0,0,0,0.07);color:#1a1a1a;border:1px solid rgba(0,0,0,0.15);border-radius:999px;padding:0.4rem 0.8rem;font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap;">💾 <span class="nav-btn-label">저장</span></button>
+          <button id="loadProjectBtn" class="nav-btn" style="background:rgba(0,0,0,0.07);color:#1a1a1a;border:1px solid rgba(0,0,0,0.15);border-radius:999px;padding:0.4rem 0.8rem;font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap;">📂 <span class="nav-btn-label">불러오기</span></button>
         </div>
       </div>
     </header>
