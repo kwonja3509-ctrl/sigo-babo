@@ -29,10 +29,10 @@
       .overflow-x-auto { overflow-x: auto; }
       .nav-link { color: rgba(15,23,42,0.65); text-decoration: none; font-size: 0.9rem; transition: color 0.15s; }
       .nav-link:hover, .nav-link.active { color: #0f172a; }
-      .nav-inner { max-width:1280px; margin:0 auto; padding:0 36px; display:flex; align-items:center; justify-content:space-between; height:72px; gap:16px; }
+      .nav-inner { max-width:1280px; margin:0 auto; padding:0 36px; display:flex; align-items:center; justify-content:space-between; height:72px; gap:16px; position:relative; }
       .nav-logo-text { color:#1a1a1a; font-weight:800; font-size:0.95rem; letter-spacing:0.01em; }
-      .nav-links { display:flex; align-items:center; gap:24px; }
-      .nav-actions { display:flex; align-items:center; gap:6px; flex-shrink:0; }
+      .nav-links { display:flex; align-items:center; gap:24px; position:absolute; left:50%; transform:translateX(-50%); white-space:nowrap; }
+      .nav-actions { display:flex; align-items:center; gap:6px; flex-shrink:0; margin-left:auto; }
       @media (max-width: 640px) {
         .nav-inner { padding:0 12px; gap:6px; height:52px; }
         .nav-logo-text { display:none; }
