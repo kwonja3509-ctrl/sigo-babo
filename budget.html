@@ -89,6 +89,12 @@
           </div>
         </div>
 
+        <!-- 작품명 입력 -->
+        <div class="mb-6">
+          <label class="block text-sm font-semibold text-slate-700 mb-2">🎬 작품명</label>
+          <input type="text" id="projectTitleInput" placeholder="작품명을 입력하세요" style="width:100%;padding:10px 16px;border:1px solid #e2e8f0;border-radius:10px;font-size:1rem;font-family:inherit;color:#0f172a;background:#f8fafc;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor='#0b2552'" onblur="this.style.borderColor='#e2e8f0'">
+        </div>
+
         <!-- 예산 상태 알림 -->
         <div id="budgetAlert" class="mb-6 p-4 rounded-lg border-2 hidden" style="border-color:#ef4444;background:#fef2f2;">
           <div class="flex items-start gap-3">
@@ -547,8 +553,10 @@
         const thStyle = 'border:1px solid #bbb;padding:9px 12px;background:#0b2552;color:#fff;font-size:13px;';
         const tdStyle = (extra) => `border:1px solid #ddd;padding:8px 11px;font-size:13px;${extra || ''}`;
 
-        let html = `<div style="font-family:'Malgun Gothic',Arial,sans-serif;color:#111;padding:8px;">`;
+        const projectTitle = document.getElementById('projectTitleInput').value.trim();
+        let html = `<div style="font-family:'Malgun Gothic',Arial,sans-serif;color:#111;padding:8px;background:#fff;">`;
         html += `<div style="text-align:center;margin-bottom:18px;">
+          ${projectTitle ? `<p style="font-size:14px;color:#0b2552;font-weight:700;margin:0 0 4px;">[ ${projectTitle} ]</p>` : ''}
           <h2 style="font-size:22px;font-weight:900;letter-spacing:2px;margin:0 0 4px;">촬영 예산서</h2>
           <p style="color:#555;font-size:13px;margin:0;">작성일: ${new Date().toLocaleDateString('ko-KR')}</p>
         </div>`;
@@ -628,7 +636,7 @@
       downloadBtn.addEventListener('click', () => {
         const all = getAllItems();
         if (all.length === 0) { alert('항목을 추가해주세요.'); return; }
-        html2pdf().set({ margin: 10, filename: '촬영_예산서.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(budgetPreview).save();
+        html2pdf().set({ margin: 10, filename: '촬영_예산서.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(budgetPreview).save();
       });
 
       document.getElementById('downloadPhaseBtn').addEventListener('click', () => {
@@ -682,7 +690,7 @@
 
         const container = document.createElement('div');
         container.innerHTML = html;
-        html2pdf().set({ margin: 10, filename: '단계별_예산.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(container).save();
+        html2pdf().set({ margin: 10, filename: '단계별_예산.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(container).save();
       });
 
       // ===== 멀티슬롯 저장 / 불러오기 =====
